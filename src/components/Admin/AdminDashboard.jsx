@@ -27,9 +27,10 @@ export function AdminDashboard({ onShowModal }) {
     { path: '/admin/chats', name: 'Chats', icon: '' },
   ];
 
+  const API_URL = import.meta.env.VITE_API_URL;
   const sessionClose = async () => {
     try {
-      const response = await fetch('http://localhost:3000/auth/logout', {
+      const response = await fetch(`${API_URL}/auth/logout`, {
         method: 'POST',
         credentials: 'include',
       });
