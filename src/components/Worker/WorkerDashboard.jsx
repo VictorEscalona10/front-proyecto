@@ -10,10 +10,10 @@ const Modal = ({ show, type, message, onConfirm, onClose, autoClose }) => {
 
   const getModalTitle = () => {
     switch (type) {
-      case 'success': return '✅ Operación Exitosa';
-      case 'error': return '❌ Error';
-      case 'warning': return '⚠️ Advertencia';
-      case 'confirm': return '❓ Confirmación';
+      case 'success': return 'Operación Exitosa';
+      case 'error': return 'Error';
+      case 'warning': return 'Advertencia';
+      case 'confirm': return 'Confirmación';
       default: return 'Mensaje del Sistema';
     }
   };
@@ -40,13 +40,13 @@ const Modal = ({ show, type, message, onConfirm, onClose, autoClose }) => {
                   onClose();
                 }}
               >
-                ✅ Sí
+                Sí
               </button>
               <button 
                 className="modal-btn cancel-btn"
                 onClick={onClose}
               >
-                ❌ No
+                No
               </button>
             </>
           ) : (
@@ -128,9 +128,9 @@ const closeModal = () => {
   };
 
   const navItems = [
-    { id: "orders", label: "Pedidos", icon: "📋" },
-    { id: "category", label: "Categorías", icon: "🏷️" },
-    { id: "products", label: "Productos", icon: "📦" }
+    { id: "orders", label: "Pedidos", icon: "" },
+    { id: "category", label: "Categorías", icon: "" },
+    { id: "products", label: "Productos", icon: "" }
   ];
   
   return (
@@ -139,7 +139,7 @@ const closeModal = () => {
       <header className="worker-header">
         <div className="worker-header-content">
           <div className="worker-title-section">
-            <h1 className="worker-main-title">👨‍💼 Panel de Trabajador</h1>
+            <h1 className="worker-main-title">Panel de Trabajador</h1>
             <p className="worker-subtitle">Migdalis Tortas - Gestión Operativa</p>
           </div>
           <button 
@@ -147,7 +147,7 @@ const closeModal = () => {
             disabled={logoutLoading}
             className="worker-logout-btn"
           >
-            {logoutLoading ? "⏳ Cerrando..." : "🚪 Cerrar Sesión"}
+            {logoutLoading ? "Cerrando..." : "Cerrar Sesión"}
           </button>
         </div>
       </header>

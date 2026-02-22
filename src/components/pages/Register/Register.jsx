@@ -8,6 +8,8 @@ export default function Register({ onShowModal }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showRepeatPassword, setShowRepeatPassword] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [identification, setIdentification] = useState("");
   const [errors, setErrors] = useState({});
@@ -278,17 +280,29 @@ export default function Register({ onShowModal }) {
 
             <div className={styles.inputGroup}>
               <label htmlFor="password">CONTRASEÑA</label>
-              <input
-                type="password"
-                id="password"
-                placeholder="Mínimo 8 caracteres"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onBlur={() => handleBlur("password")}
-                className={`${styles.input} ${errors.password && touched.password ? styles.inputError : ""}`}
-                required
-                disabled={isLoading}
-              />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  id="password"
+                  placeholder="Mínimo 8 caracteres"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onBlur={() => handleBlur("password")}
+                  className={`${styles.input} ${errors.password && touched.password ? styles.inputError : ""}`}
+                  required
+                  disabled={isLoading}
+                  style={{ flex: 1 }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((s) => !s)}
+                  className={styles.togglePassword}
+                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  disabled={isLoading}
+                >
+                  {showPassword ? 'Ocultar' : 'Mostrar'}
+                </button>
+              </div>
               {errors.password && touched.password && (
                 <span className={styles.errorText}>{errors.password}</span>
               )}
@@ -296,17 +310,29 @@ export default function Register({ onShowModal }) {
 
             <div className={styles.inputGroup}>
               <label htmlFor="repeatPassword">REPETIR CONTRASEÑA</label>
-              <input
-                type="password"
-                id="repeatPassword"
-                placeholder="Repite tu contraseña"
-                value={repeatPassword}
-                onChange={(e) => setRepeatPassword(e.target.value)}
-                onBlur={() => handleBlur("repeatPassword")}
-                className={`${styles.input} ${errors.repeatPassword && touched.repeatPassword ? styles.inputError : ""}`}
-                required
-                disabled={isLoading}
-              />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input
+                  type={showRepeatPassword ? 'text' : 'password'}
+                  id="repeatPassword"
+                  placeholder="Repite tu contraseña"
+                  value={repeatPassword}
+                  onChange={(e) => setRepeatPassword(e.target.value)}
+                  onBlur={() => handleBlur("repeatPassword")}
+                  className={`${styles.input} ${errors.repeatPassword && touched.repeatPassword ? styles.inputError : ""}`}
+                  required
+                  disabled={isLoading}
+                  style={{ flex: 1 }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowRepeatPassword((s) => !s)}
+                  className={styles.togglePassword}
+                  aria-label={showRepeatPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  disabled={isLoading}
+                >
+                  {showRepeatPassword ? 'Ocultar' : 'Mostrar'}
+                </button>
+              </div>
               {errors.repeatPassword && touched.repeatPassword && (
                 <span className={styles.errorText}>{errors.repeatPassword}</span>
               )}

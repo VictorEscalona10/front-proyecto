@@ -474,7 +474,6 @@ export function OrderPage() {
                       </div>
                     </div>
 
-                    {/* Comprobante de pago */}
                     <div className="payment-proof-section">
                       <h4>📄 Comprobante de Pago</h4>
                       <PaymentProofViewer orderId={order.id} />

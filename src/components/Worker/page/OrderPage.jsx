@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import "./OrderPage.css";
+import { PaymentProofViewer } from "../../pages/Comprobante/PaymentProofViewer";
 
 export function OrderPage({ onShowModal }) {
     const API_URL = import.meta.env.VITE_API_URL;
@@ -92,10 +93,19 @@ export function OrderPage({ onShowModal }) {
             return;
         }
 
+        // Validar que la cédula contenga solo dígitos
+        if (!/^\d+$/.test(identification)) {
+            onShowModal({
+                type: 'warning',
+                message: 'La cédula debe contener solo números'
+            });
+            return;
+        }
+
         try {
             setLoading(true);
             
-            console.log("🔍 Buscando órdenes por cédula:", identification);
+                    console.log("Buscando órdenes por cédula:", identification);
             
             const allOrdersRequest = await fetch(`${API_URL}/orders`, {
                 method: "GET",
@@ -113,7 +123,7 @@ export function OrderPage({ onShowModal }) {
                 return userIdentification && userIdentification.toString() === identification;
             });
             
-            console.log(`✅ Encontradas ${filteredOrders.length} órdenes para cédula: ${identification}`);
+            console.log(`Encontradas ${filteredOrders.length} órdenes para cédula: ${identification}`);
             setOrders(filteredOrders);
             setShowAllOrders(false);
             setHasSearched(true);
@@ -181,7 +191,7 @@ export function OrderPage({ onShowModal }) {
             
             onShowModal({
             type: 'success',
-            message: `✅ Estado de la orden actualizado a: ${getStatusText(newStatus)}`,
+            message: `Estado de la orden actualizado a: ${getStatusText(newStatus)}`,
             autoClose: true
             });
         } catch (error) {
@@ -250,9 +260,32 @@ export function OrderPage({ onShowModal }) {
     };
 
     const handleKeyPress = (e) => {
-        if (e.key === 'Enter') {
-            searchOrders();
+        // Si estamos en búsqueda por cédula, permitir solo números y Enter
+        if (searchType === 'identification') {
+            if (e.key === 'Enter') {
+                searchOrders();
+                return;
+            }
+            // permitir control keys: Backspace, Delete, Arrow keys
+            const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Home', 'End'];
+            if (allowed.includes(e.key)) return;
+            if (!/^[0-9]$/.test(e.key)) {
+                e.preventDefault();
+            }
+        } else {
+            if (e.key === 'Enter') {
+                searchOrders();
+            }
         }
+    };
+
+    const handleSearchInputChange = (e) => {
+        let value = e.target.value || "";
+        if (searchType === 'identification') {
+            // eliminar cualquier caracter no numérico
+            value = value.replace(/\D+/g, '');
+        }
+        setSearchTerm(value);
     };
 
     const clearSearch = () => {
@@ -261,12 +294,12 @@ export function OrderPage({ onShowModal }) {
     };
 
     return (
-        <div className="order-page">
-            <h1>🍰 Gestión de Órdenes</h1>
+            <div className="order-page">
+                <h1>Gestión de Órdenes</h1>
             
             {/* Panel de búsqueda */}
             <div className="search-panel">
-                <h3>🔍 Buscar Órdenes</h3>
+                <h3>Buscar Órdenes</h3>
                 <div className="search-controls">
                     <div className="search-type-selector">
                         <label htmlFor="searchType">Buscar por:</label>
@@ -283,9 +316,11 @@ export function OrderPage({ onShowModal }) {
                     
                     <div className="search-input-group">
                         <input
-                            type="text"
+                            type={searchType === 'identification' ? 'text' : 'text'}
+                            inputMode={searchType === 'identification' ? 'numeric' : 'text'}
+                            pattern={searchType === 'identification' ? '\\d*' : undefined}
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onChange={handleSearchInputChange}
                             onKeyPress={handleKeyPress}
                             placeholder={
                                 searchType === 'email' 
@@ -300,7 +335,7 @@ export function OrderPage({ onShowModal }) {
                                 className="clear-search-btn"
                                 title="Limpiar búsqueda"
                             >
-                                ✕
+                                X
                             </button>
                         )}
                     </div>
@@ -310,7 +345,7 @@ export function OrderPage({ onShowModal }) {
                         disabled={loading || !searchTerm.trim()}
                         className="search-btn"
                     >
-                        {loading ? "⏳ Buscando..." : "🔍 Buscar"}
+                        {loading ? "Buscando..." : "Buscar"}
                     </button>
                     
                     <button 
@@ -318,7 +353,7 @@ export function OrderPage({ onShowModal }) {
                         disabled={loading}
                         className="all-orders-btn"
                     >
-                        {loading ? "⏳ Cargando..." : "📋 Ver Todas"}
+                        {loading ? "Cargando..." : "Ver Todas"}
                     </button>
                 </div>
                 
@@ -327,8 +362,8 @@ export function OrderPage({ onShowModal }) {
                         {showAllOrders 
                             ? `Mostrando todas las órdenes (${orders.length} total)`
                             : searchTerm 
-                                ? `🔍 Búsqueda por ${searchType}: "${searchTerm}" - ${orders.length} órdenes encontradas`
-                                : "👆 Selecciona un tipo de búsqueda e ingresa el término"
+                                ? `Búsqueda por ${searchType}: "${searchTerm}" - ${orders.length} órdenes encontradas`
+                                : "Selecciona un tipo de búsqueda e ingresa el término"
                         }
                     </p>
                 </div>
@@ -337,7 +372,7 @@ export function OrderPage({ onShowModal }) {
             {/* Loading */}
             {loading && (
                 <div className="loading-state">
-                    <p>⏳ Cargando órdenes...</p>
+                    <p>Cargando órdenes...</p>
                 </div>
             )}
 
@@ -376,7 +411,7 @@ export function OrderPage({ onShowModal }) {
                                 onClick={toggleAllOrders}
                                 className="toggle-all-btn"
                             >
-                                {expandedOrders.size === orders.length ? "🙈 Contraer Todas" : "👁️ Expandir Todas"}
+                                {expandedOrders.size === orders.length ? "Contraer Todas" : "Expandir Todas"}
                             </button>
                         </div>
                     </div>
@@ -418,7 +453,7 @@ export function OrderPage({ onShowModal }) {
                                     <div className="order-expandable-content" onClick={(e) => e.stopPropagation()}>
                                         {/* Información detallada del cliente */}
                                         <div className="customer-info">
-                                            <h4>👤 Información del Cliente</h4>
+                                            <h4>Información del Cliente</h4>
                                             <div className="customer-details">
                                                 <p><strong>Nombre:</strong> {order.user.name}</p>
                                                 <p><strong>Email:</strong> {order.user.email}</p>
@@ -429,6 +464,26 @@ export function OrderPage({ onShowModal }) {
                                         </div>
 
                                         {/* Control de estado */}
+                                        <div className="payment-info-section">
+                                            <h4>Información de Pago</h4>
+                                            <div className="payment-details">
+                                                <p>
+                                                    <strong>Método de Pago:</strong> {order.paymentMethod || "No especificado"}
+                                                </p>
+                                                {order.reference && (
+                                                    <p>
+                                                        <strong>Referencia:</strong> {order.reference}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Comprobante de pago */}
+                                        <div className="payment-proof-section">
+                                            <h4>Comprobante de Pago</h4>
+                                            <PaymentProofViewer orderId={order.id} />
+                                        </div>
+
                                         <div className="status-control-expanded">
                                             <label htmlFor={`status-${order.id}`}>
                                                 Cambiar Estado:

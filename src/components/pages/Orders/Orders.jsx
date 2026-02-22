@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import "./Orders.Module.css";
+import { PaymentProofViewer } from "../Comprobante/PaymentProofViewer";
 
 export function OrderPage({ onShowModal }) { // Agregar onShowModal como prop
     const API_URL = import.meta.env.VITE_API_URL;
@@ -8,6 +9,8 @@ export function OrderPage({ onShowModal }) { // Agregar onShowModal como prop
     const [error, setError] = useState("");
     const [expandedOrders, setExpandedOrders] = useState(new Set());
     const [currentUser, setCurrentUser] = useState(null);
+    const [selectedFiles, setSelectedFiles] = useState({});
+    const [uploadingProof, setUploadingProof] = useState({});
 
 
     
@@ -80,6 +83,9 @@ useEffect(() => {
         console.log("✅ Órdenes obtenidas:", response);
         setOrders(response);
         setExpandedOrders(new Set());
+        // reset upload states
+        setSelectedFiles({});
+        setUploadingProof({});
         
     } catch (error) {
         console.error("❌ Error fetching user orders:", error);
@@ -110,6 +116,56 @@ useEffect(() => {
             }
             return newSet;
         });
+    };
+
+    const handleProofFileChange = (orderId, e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        // validar tipo y tamaño (<=5MB)
+        if (!file.type.match('image.*')) {
+            if (typeof onShowModal === 'function') onShowModal({ type: 'error', message: 'Por favor sube solo imágenes (JPG, PNG, etc.)' });
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            if (typeof onShowModal === 'function') onShowModal({ type: 'error', message: 'La imagen es muy grande. Máximo 5MB' });
+            return;
+        }
+        setSelectedFiles(prev => ({ ...prev, [orderId]: file }));
+    };
+
+    const uploadPaymentProof = async (orderId) => {
+        const file = selectedFiles[orderId];
+        if (!file) {
+            if (typeof onShowModal === 'function') onShowModal({ type: 'warning', message: 'Selecciona una imagen antes de subir' });
+            return;
+        }
+
+        try {
+            setUploadingProof(prev => ({ ...prev, [orderId]: true }));
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const resp = await fetch(`${API_URL}/orders/${orderId}/payment-proof`, {
+                method: 'POST',
+                body: formData,
+                credentials: 'include'
+            });
+
+            if (!resp.ok) {
+                const text = await resp.text();
+                throw new Error(text || 'Error al subir el comprobante');
+            }
+
+            if (typeof onShowModal === 'function') onShowModal({ type: 'success', message: 'Comprobante subido correctamente', autoClose: true });
+            // refrescar órdenes para mostrar comprobante
+            if (currentUser) getOrdersByUser(currentUser.email);
+        } catch (err) {
+            console.error('Error subiendo comprobante:', err);
+            if (typeof onShowModal === 'function') onShowModal({ type: 'error', message: err.message || 'Error al subir el comprobante' });
+        } finally {
+            setUploadingProof(prev => ({ ...prev, [orderId]: false }));
+            setSelectedFiles(prev => ({ ...prev, [orderId]: undefined }));
+        }
     };
 
     const toggleAllOrders = () => {
@@ -337,11 +393,33 @@ useEffect(() => {
                                             </div>
                                         </div>
 
-                                        <div className="order-actions">
-                                            <p className="order-help">
-                                                💡 ¿Tienes preguntas sobre tu pedido? 
-                                                <a href="/contact" className="contact-link"> Contáctanos</a>
-                                            </p>
+                                        <div className="payment-info-section">
+                                            <h4>Información de Pago</h4>
+                                            <p><strong>Método:</strong> {order.paymentMethod || 'No especificado'}</p>
+                                            {order.reference && (
+                                                <p><strong>Referencia:</strong> {order.reference}</p>
+                                            )}
+                                        </div>
+
+                                        <div className="payment-proof-uploader" onClick={(e) => e.stopPropagation()}>
+                                            <PaymentProofViewer orderId={order.id} />
+
+                                            {order.paymentMethod && order.paymentMethod !== 'EFECTIVO' && (
+                                                <div className="upload-controls">
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={(e) => { e.stopPropagation(); handleProofFileChange(order.id, e); }}
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => { e.stopPropagation(); uploadPaymentProof(order.id); }}
+                                                        disabled={uploadingProof[order.id]}
+                                                    >
+                                                        {uploadingProof[order.id] ? 'Subiendo...' : 'Subir comprobante'}
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 )}

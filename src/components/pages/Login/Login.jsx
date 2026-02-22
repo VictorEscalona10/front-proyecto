@@ -7,6 +7,7 @@ import logo from '../../../assest/img/logo.jpg';
 export default function Login({ onShowModal }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [touched, setTouched] = useState({
@@ -16,7 +17,7 @@ export default function Login({ onShowModal }) {
   const API_URL = import.meta.env.VITE_API_URL;
   
   const navigate = useNavigate();
-  const { checkAuth } = useAuth();
+  const { checkAuth, user } = useAuth();
 
   const validate = () => {
     const newErrors = {};
@@ -93,10 +94,23 @@ export default function Login({ onShowModal }) {
         } catch (err) {
           console.warn('No se pudo refrescar auth después del login:', err);
         }
-        
-        setTimeout(() => {
-          navigate('/admin');
-        }, 1500);
+
+        // Redirigir según el rol del usuario; obtener rol directamente del endpoint /auth/me
+        try {
+          const meResp = await fetch(`${API_URL}/auth/me`, { method: 'GET', credentials: 'include' });
+          const meData = await meResp.json();
+          const role = meData?.user?.role;
+          if (role === 'ADMINISTRADOR') {
+            navigate('/admin', { replace: true });
+          } else if (role === 'TRABAJADOR') {
+            navigate('/worker', { replace: true });
+          } else {
+            navigate('/', { replace: true });
+          }
+        } catch (err) {
+          console.warn('No se pudo obtener /auth/me para redireccionar:', err);
+          navigate('/', { replace: true });
+        }
       } else {
         console.error("Error en el login:", data.message || response.statusText);
         showModalSafe({
@@ -161,17 +175,29 @@ export default function Login({ onShowModal }) {
 
             <div className={styles.inputGroup}>
               <label htmlFor="password">CONTRASEÑA</label>
-              <input
-                type="password"
-                id="password"
-                placeholder="Debe tener al menos 8 caracteres"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onBlur={() => handleBlur("password")}
-                className={`${styles.input} ${errors.password && touched.password ? styles.inputError : ""}`}
-                required
-                disabled={isLoading}
-              />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  id="password"
+                  placeholder="Debe tener al menos 8 caracteres"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onBlur={() => handleBlur("password")}
+                  className={`${styles.input} ${errors.password && touched.password ? styles.inputError : ""}`}
+                  required
+                  disabled={isLoading}
+                  style={{ flex: 1 }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((s) => !s)}
+                  className={styles.togglePassword}
+                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  disabled={isLoading}
+                >
+                  {showPassword ? 'Ocultar' : 'Mostrar'}
+                </button>
+              </div>
               {errors.password && touched.password && (
                 <span className={styles.errorText}>{errors.password}</span>
               )}

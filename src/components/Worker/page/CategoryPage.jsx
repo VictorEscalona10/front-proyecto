@@ -53,13 +53,13 @@ export function Category({ onShowModal }) {
 
   const createCategory = async (name) => {
     if (!name.trim()) {
-  onShowModal({
-  type: 'success',
-  message: '✅ Categoría creada con éxito',
-  autoClose: true
-});
-      return;
-    }
+    onShowModal({
+    type: 'success',
+    message: 'Categoría creada con éxito',
+    autoClose: true
+  });
+        return;
+      }
 
     try {
       const request = await fetch(`${API_URL}/category/create`, {
@@ -80,7 +80,7 @@ export function Category({ onShowModal }) {
       setNewCategory("");
       onShowModal({
         type: 'success',
-        message: '✅ Categoría creada con éxito'
+        message: 'Categoría creada con éxito'
       });
     } catch (error) {
       console.error("Error creating category:", error);
@@ -116,7 +116,7 @@ export function Category({ onShowModal }) {
   return (
     <div className="category-page">
       <div className="category-header">
-        <h1>🎯 Gestión de Categorías</h1>
+        <h1>Gestión de Categorías</h1>
         <p>Administra las categorías de productos de la repostería</p>
       </div>
 
@@ -126,13 +126,13 @@ export function Category({ onShowModal }) {
           className={`tab-button ${activeTab === 'list' ? 'active' : ''}`}
           onClick={() => setActiveTab('list')}
         >
-          📋 Lista de Categorías
+          Lista de Categorías
         </button>
         <button 
           className={`tab-button ${activeTab === 'create' ? 'active' : ''}`}
           onClick={() => setActiveTab('create')}
         >
-          ➕ Crear Categoría
+          Crear Categoría
         </button>
       </div>
 
@@ -141,7 +141,7 @@ export function Category({ onShowModal }) {
         <div className="list-panel">
           {/* Panel de búsqueda */}
           <div className="search-panel">
-            <h3>🔍 Buscar Categorías</h3>
+            <h3>Buscar Categorías</h3>
             <div className="search-controls">
               <div className="search-type-selector">
                 <label htmlFor="searchType">Buscar por:</label>
@@ -161,7 +161,7 @@ export function Category({ onShowModal }) {
                   type="text"
                   value={searchTerm}
                   onChange={handleSearch}
-                  placeholder={searchType === 'name' ? "🔍 Buscar por nombre..." : "🔍 Buscar por ID..."}
+                  placeholder={searchType === 'name' ? "Buscar por nombre..." : "Buscar por ID..."}
                   className="search-input"
                 />
                 {searchTerm && (
@@ -170,7 +170,7 @@ export function Category({ onShowModal }) {
                     className="clear-search-btn"
                     title="Limpiar búsqueda"
                   >
-                    ✕
+                    X
                   </button>
                 )}
               </div>
@@ -191,7 +191,7 @@ export function Category({ onShowModal }) {
               className="load-btn"
               disabled={loading}
             >
-              {loading ? "⏳ Cargando..." : "🔄 Actualizar Lista"}
+              {loading ? "Cargando..." : "Actualizar Lista"}
             </button>
           </div>
 
@@ -199,34 +199,34 @@ export function Category({ onShowModal }) {
           <div className="categories-list">
             {loading ? (
               <div className="loading-state">
-                <p>⏳ Cargando categorías...</p>
+                <p>Cargando categorías...</p>
               </div>
             ) : filteredCategories.length === 0 ? (
               <div className="empty-state">
                 {searchTerm ? (
                   <>
-                    <p>🔍 No se encontraron categorías</p>
+                    <p>No se encontraron categorías</p>
                     <p>No hay resultados para "{searchTerm}"</p>
                     <button onClick={clearSearch} className="load-btn">
-                      🔄 Mostrar todas
+                      Mostrar todas
                     </button>
                   </>
                 ) : (
                   <>
-                    <p>📭 No hay categorías cargadas</p>
+                    <p>No hay categorías cargadas</p>
                     <p>Haz clic en "Actualizar Lista" para cargar las categorías</p>
                   </>
                 )}
               </div>
             ) : (
               <>
-                <h3>📂 Categorías Existentes ({filteredCategories.length})</h3>
+                <h3>Categorías Existentes ({filteredCategories.length})</h3>
                 <div className="categories-grid">
                   {filteredCategories.map((category) => (
                     <div key={category.id} className="category-card">
                       <div className="category-info">
                         <div className="category-id">ID: {category.id}</div>
-                        <span className="category-name">🏷️ {category.name}</span>
+                        <span className="category-name">{category.name}</span>
                       </div>
                       {/* TRABAJADOR: Sin botón de eliminar */}
                     </div>
@@ -242,18 +242,18 @@ export function Category({ onShowModal }) {
       {activeTab === 'create' && (
         <div className="create-panel">
           <div className="category-form">
-            <h3>➕ Crear Nueva Categoría</h3>
+            <h3>Crear Nueva Categoría</h3>
             <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <input
                   type="text"
                   value={newCategory}
                   onChange={(e) => setNewCategory(e.target.value)}
-                  placeholder="📝 Nombre de la nueva categoría"
+                  placeholder="Nombre de la nueva categoría"
                   className="category-input"
                 />
                 <button type="submit" className="add-btn">
-                  ➕ Crear Categoría
+                  Crear Categoría
                 </button>
               </div>
             </form>
@@ -264,7 +264,7 @@ export function Category({ onShowModal }) {
 
           {/* Vista previa de categorías existentes */}
           <div className="existing-categories-preview">
-            <h4>📋 Categorías Existentes ({categories.length})</h4>
+            <h4>Categorías Existentes ({categories.length})</h4>
             {categories.length > 0 ? (
               <div className="categories-preview-list">
                 {categories.slice(0, 5).map((category) => (

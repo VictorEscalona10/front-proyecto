@@ -250,14 +250,14 @@ export function ProductPage() {
                 className={`type-btn ${searchType === 'name' ? 'active' : ''}`}
                 onClick={() => setSearchType('name')}
               >
-                🔍 Por Nombre
+                Por Nombre
               </button>
               <button
                 type="button"
                 className={`type-btn ${searchType === 'category' ? 'active' : ''}`}
                 onClick={() => setSearchType('category')}
               >
-                🗂️ Por Categoría
+                Por Categoría
               </button>
             </div>
             
@@ -281,7 +281,7 @@ export function ProductPage() {
         onClick={clearSearch}
         type="button"
       >
-        ✕
+        X
       </button>
     )}
   </div>
@@ -290,7 +290,7 @@ export function ProductPage() {
     onClick={handleSearch}
     disabled={!searchTerm.trim()}
   >
-    🔍 Buscar
+    Buscar
   </button>
 </div>
           </div>
@@ -314,7 +314,7 @@ export function ProductPage() {
                   setSearchTerm("");
                 }}
               >
-                ✕ Limpiar resultados
+                Limpiar resultados
               </button>
             )}
           </div>
@@ -337,7 +337,7 @@ export function ProductPage() {
                           {product.imageUrl ? (
                             <img src={product.imageUrl} alt={product.name} />
                           ) : (
-                            <div className="no-image">📷 No Image</div>
+                            <div className="no-image">No Image</div>
                           )}
                         </div>
                         <div className="product-info">
@@ -457,7 +457,7 @@ export function ProductPage() {
                   className="submit-btn"
                   disabled={loading}
                 >
-                  {loading ? "⏳ Enviando..." : "📤 Subir Producto"}
+                  {loading ? "Enviando..." : "Subir Producto"}
                 </button>
               </form>
 

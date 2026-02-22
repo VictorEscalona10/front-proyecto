@@ -20,7 +20,7 @@ import {ProductDetail} from "./components/pages/Products/ProductDetail.jsx";
 import { CustomCakeBuilder } from "./components/pages/customCake/CustomCake.jsx";
 import { OrderPage } from "./components/pages/Orders/Orders.jsx";
 
-import { ChatBubble } from "./components/pages/ChatBubble/Chatbubble.jsx";
+import {ChatBubble} from "./components/pages/ChatBubble/ChatBubble.jsx";
 
 // Componente de ruta protegida
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -74,7 +74,22 @@ function App() {
         
         <Routes>
           {/* Rutas públicas */}
-          <Route path="/" element={<Home onShowModal={showModal} />} />
+          <Route
+            path="/"
+            element={
+              isAuthenticated ? (
+                user?.role === 'ADMINISTRADOR' ? (
+                  <Navigate to="/admin" replace />
+                ) : user?.role === 'TRABAJADOR' ? (
+                  <Navigate to="/worker" replace />
+                ) : (
+                  <Home onShowModal={showModal} />
+                )
+              ) : (
+                <Home onShowModal={showModal} />
+              )
+            }
+          />
           <Route path="/login" element={<Login onShowModal={showModal} />} />
           <Route path="/register" element={<Register onShowModal={showModal} />} />
           <Route path="/forgot_password" element={<Forgot_Password onShowModal={showModal} />} />
@@ -108,7 +123,18 @@ function App() {
           } />
           
           {/* Redirección por defecto */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route
+            path="*"
+            element={
+              isAuthenticated
+                ? user?.role === 'ADMINISTRADOR'
+                  ? <Navigate to="/admin" replace />
+                  : user?.role === 'TRABAJADOR'
+                    ? <Navigate to="/worker" replace />
+                    : <Navigate to="/" replace />
+                : <Navigate to="/" replace />
+            }
+          />
         </Routes>
         
         {/* Modal global */}
@@ -121,7 +147,6 @@ function App() {
           />
         )}
 
-        {/* Mostrar burbuja de chat para usuarios autenticados con rol USUARIO */}
         {isAuthenticated && user?.role === 'USUARIO' && <ChatBubble user={user} />}
       </Router>
     </CartProvider>
