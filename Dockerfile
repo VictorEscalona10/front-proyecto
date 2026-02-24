@@ -1,12 +1,15 @@
-# Multi-stage build: build with Node, serve with nginx
+# Multi-stage build
 FROM node:18-alpine AS build
 WORKDIR /app
 
-# Install deps
+# --- ESTO ES LO NUEVO ---
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
+# ------------------------
+
 COPY package*.json ./
 RUN npm ci --silent
 
-# Copy sources and build
 COPY . .
 RUN npm run build
 
