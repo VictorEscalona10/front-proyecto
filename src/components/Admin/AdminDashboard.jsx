@@ -10,6 +10,7 @@ import { OrderPage } from './pages/OrderPage.jsx';
 import { Users } from './pages/UsersPage.jsx';
 import { PDFTester } from './pages/PDFTester.jsx';
 import StatsPage  from './pages/StatsPage.jsx';
+import { useNavigate } from 'react-router-dom';
 
 export function AdminDashboard({ onShowModal }) {
   const location = useLocation();
