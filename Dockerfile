@@ -1,19 +1,21 @@
-# Multi-stage build
-FROM node:18-alpine AS build
+# Usamos Node 24 para que coincida con tu entorno
+FROM node:24 AS build
 WORKDIR /app
 
-# --- ESTO ES LO NUEVO ---
+# --- Variables de entorno para Vite ---
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
-# ------------------------
+# --------------------------------------
 
 COPY package*.json ./
-RUN npm ci --silent
+# Usamos install para evitar los bloqueos estrictos de 'ci'
+RUN npm install
 
 COPY . .
-RUN npm run build
+# Le añadimos un pequeño truco: si falla, escupirá el error real antes de morir
+RUN npm run build || (echo "🚨 ERROR EN EL BUILD 🚨" && npm run build --debug && exit 1)
 
-# Production image
+# Production image (Nginx sí puede ser alpine porque es muy ligero)
 FROM nginx:stable-alpine AS production
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
