@@ -12,8 +12,8 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
-# Le añadimos un pequeño truco: si falla, escupirá el error real antes de morir
-RUN npm run build || (echo "🚨 ERROR EN EL BUILD 🚨" && npm run build --debug && exit 1)
+# Guardamos todo lo que diga Vite en un archivo de texto. Si falla, mostramos el texto completo y morimos.
+RUN npm run build > error_log.txt 2>&1 || (cat error_log.txt && exit 1)
 
 # Production image (Nginx sí puede ser alpine porque es muy ligero)
 FROM nginx:stable-alpine AS production
