@@ -1,7 +1,6 @@
 // AdminDashboard.jsx - Versión CORREGIDA
 import { useState } from 'react';
 import { Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
-import { Navigate } from 'react-router-dom';
 import './AdminDashboard.css';
 import { Category } from './pages/CategoryPage.jsx';
 import { ProductPage } from './pages/ProductPage.jsx';
