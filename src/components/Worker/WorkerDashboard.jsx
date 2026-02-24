@@ -112,9 +112,6 @@ const closeModal = () => {
             method: 'POST',
             credentials: 'include',
           });
-
-          localStorage.clear();
-          sessionStorage.clear();
           window.location.href = '/login';
           
         } catch (error) {

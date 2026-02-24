@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  frontend:
+    build: .
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    # If you need to pass env (e.g., API URL) to build, use args or env_file
+    # build:
+    #   context: .
+    #   args:
+    #     VITE_API_URL: "https://api.example.com"
