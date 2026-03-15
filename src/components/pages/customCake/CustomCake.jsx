@@ -9,7 +9,7 @@ export function CustomCakeBuilder() {
 
   // Configuración
   const API_URL = import.meta.env.VITE_API_URL;
-  const CATEGORY_ID = 19; // ID de "Tortas Personalizadas"
+  const CATEGORY_ID = 1; // ID de "Tortas Personalizadas"
   const PRODUCT_ID_BASE = 1; // ID temporal del producto base
   const BASE_PRICE_FALLBACK = 20.00;
 
