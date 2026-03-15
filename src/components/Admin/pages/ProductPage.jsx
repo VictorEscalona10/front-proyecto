@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import "./ProductPage.css";
 
 export function ProductPage({ onShowModal }) {
-  // <- Agregar esta prop
   const [products, setProducts] = useState([]);
   const [groupedProducts, setGroupedProducts] = useState({});
   const [categories, setCategories] = useState([]);
@@ -18,8 +17,8 @@ export function ProductPage({ onShowModal }) {
   const [searchType, setSearchType] = useState("name");
   const [searchTerm, setSearchTerm] = useState("");
   const [availableCategories, setAvailableCategories] = useState([]);
-
   const [showModal, setShowModal] = useState(false);
+  const [deletingId, setDeletingId] = useState(null); // Nuevo estado para controlar eliminación
 
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -32,6 +31,7 @@ export function ProductPage({ onShowModal }) {
   useEffect(() => {
     groupProductsByCategory();
   }, [products]);
+
   const getAllCategories = async () => {
     try {
       const response = await fetch(`${API_URL}/category`);
@@ -115,7 +115,7 @@ export function ProductPage({ onShowModal }) {
         `${API_URL}/products/search/category?id=${encodeURIComponent(categoryId)}`,
       );
       const result = await response.json();
-      console.log("Category search result:", result); // Para debugging
+      console.log("Category search result:", result);
       setProducts(result.data || []);
     } catch (error) {
       console.error("Error fetching products by category:", error);
@@ -123,7 +123,7 @@ export function ProductPage({ onShowModal }) {
     }
   };
 
-  // Función unificada de búsqueda - MEJORADA
+  // Función unificada de búsqueda
   const handleSearch = () => {
     if (!searchTerm.trim()) {
       getAllProducts();
@@ -141,7 +141,6 @@ export function ProductPage({ onShowModal }) {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
-    // Validación: el nombre NO puede contener números
     if (name === "name") {
       const onlyLetters = value.replace(/[0-9]/g, "");
       setFormData((prev) => ({
@@ -200,7 +199,6 @@ export function ProductPage({ onShowModal }) {
         `HTTP ${response.status} ${response.statusText}\n\n${output}`,
       );
 
-      // Limpiar formulario después de enviar
       if (response.ok) {
         setFormData({
           name: "",
@@ -210,10 +208,8 @@ export function ProductPage({ onShowModal }) {
           imagen: null,
         });
         document.getElementById("imagen").value = "";
-        // Recargar la lista de productos
         getAllProducts();
 
-        // MOSTRAR ALERTA DE ÉXITO
         if (onShowModal) {
           onShowModal({
             type: "success",
@@ -222,13 +218,11 @@ export function ProductPage({ onShowModal }) {
           });
         }
 
-        // Cerrar el modal después de 2 segundos
         setTimeout(() => {
           setShowModal(false);
           setUploadResult("");
         }, 2000);
       } else {
-        // Mostrar error si la respuesta no fue exitosa
         if (onShowModal) {
           onShowModal({
             type: "error",
@@ -238,7 +232,6 @@ export function ProductPage({ onShowModal }) {
       }
     } catch (error) {
       setUploadResult("Error de red: " + error.message);
-      // Mostrar error de red
       if (onShowModal) {
         onShowModal({
           type: "error",
@@ -281,10 +274,57 @@ export function ProductPage({ onShowModal }) {
       imagen: null,
     });
     setUploadResult("");
-    // Limpiar el input de archivo
     const fileInput = document.getElementById("imagen");
     if (fileInput) fileInput.value = "";
   };
+
+  // --- NUEVA FUNCIÓN PARA ELIMINAR PRODUCTO (SOFT DELETE) ---
+  const handleDeleteProduct = async (productId) => {
+    if (!window.confirm("¿Estás seguro de que deseas eliminar este producto?")) {
+      return;
+    }
+
+    setDeletingId(productId);
+    try {
+      const response = await fetch(`${API_URL}/products/${productId}`, {
+        method: "DELETE",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.status === 204) {
+        // Éxito: sin contenido
+        // Actualizar la lista de productos eliminando el producto o recargando
+        setProducts((prevProducts) =>
+          prevProducts.filter((p) => p.id !== productId)
+        );
+        if (onShowModal) {
+          onShowModal({
+            type: "success",
+            message: "🗑️ Producto eliminado correctamente",
+            autoClose: true,
+          });
+        }
+      } else {
+        // Manejar errores
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "Error al eliminar el producto");
+      }
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      if (onShowModal) {
+        onShowModal({
+          type: "error",
+          message: error.message || "Error al eliminar el producto",
+        });
+      }
+    } finally {
+      setDeletingId(null);
+    }
+  };
+  // ----------------------------------------------------------
 
   // Calcular el total de productos
   const totalProducts = products.length;
@@ -297,7 +337,7 @@ export function ProductPage({ onShowModal }) {
       </header>
 
       <div className="page-content">
-        {/* Sección de búsqueda unificada - MEJORADA */}
+        {/* Sección de búsqueda */}
         <section className="search-section">
           <h2>Buscar Productos</h2>
           <div className="search-controls">
@@ -353,7 +393,7 @@ export function ProductPage({ onShowModal }) {
           </div>
         </section>
 
-        {/* Sección de resultados de búsqueda */}
+        {/* Sección de resultados */}
         <section className="results-section">
           <div className="results-header">
             <h3>
@@ -415,6 +455,27 @@ export function ProductPage({ onShowModal }) {
                             <span className="product-id">
                               ID: {String(product.id).slice(0, 8)}
                             </span>
+                          </div>
+                          {/* BOTÓN DE ELIMINAR CON ESTADO DESACTIVADO/ACTIVADO */}
+                          <div className="product-actions">
+                            <button
+                              className={`delete-btn ${!product.isActive ? "disabled" : ""}`}
+                              onClick={() => handleDeleteProduct(product.id)}
+                              disabled={
+                                deletingId === product.id || !product.isActive
+                              }
+                              title={
+                                !product.isActive
+                                  ? "Producto ya eliminado"
+                                  : "Eliminar producto"
+                              }
+                            >
+                              {deletingId === product.id
+                                ? "Eliminando..."
+                                : !product.isActive
+                                ? "Eliminado"
+                                : "Eliminar"}
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -546,3 +607,4 @@ export function ProductPage({ onShowModal }) {
     </div>
   );
 }
+

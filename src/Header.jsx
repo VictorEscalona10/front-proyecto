@@ -28,7 +28,7 @@ export default function Header({ onShowModal }) {
           </Link>
         </div>
         
-        <nav className={styles.nav}>
+        <nav className={styles.nav} id="nav-principal">
           {/* Cambiar "PEDIDOS" por "MIS PEDIDOS" y la ruta por "/my-orders" */}
           <Link to="/my-orders" className={styles.navLink}>MIS PEDIDOS</Link>
           <Link to="/Products" className={styles.navLink}>PRODUCTOS</Link>

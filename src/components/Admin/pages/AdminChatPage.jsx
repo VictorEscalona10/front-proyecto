@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
 
-const API_URL = import.meta.env.VITE_API_URL
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function AdminChatPage() {
   const socketRef = useRef(null);
+  // NUEVO: Un ref para mantener el ID actual sin romper los eventos del socket
+  const activeChatIdRef = useRef(null); 
 
   const [connected, setConnected] = useState(false);
   const [chats, setChats] = useState([]);
@@ -12,11 +14,20 @@ export default function AdminChatPage() {
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState('');
 
-  /* ================= SOCKET INIT ================= */
+  // Sincronizamos el estado de activeChat con el Ref
+  useEffect(() => {
+    activeChatIdRef.current = activeChat?.id;
+  }, [activeChat]);
+
+  /* ================= SOCKET INIT (Se ejecuta UNA sola vez) ================= */
   useEffect(() => {
     const socket = io(API_URL, {
       withCredentials: true,
-      transports: ['websocket'],
+      // Quitamos transports: ['websocket'] fijo para que Socket.io pueda hacer fallback 
+      // a Polling si el servidor de Render está "despertando" y tarda un poco.
+      reconnection: true,
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 1000,
     });
 
     socketRef.current = socket;
@@ -38,13 +49,15 @@ export default function AdminChatPage() {
 
     socket.on('new_message', (msg) => {
       console.log('Nuevo mensaje', msg);
-      if (msg.chatId === activeChat?.id) {
+      // Usamos el Ref en lugar del estado para evitar el "stale closure"
+      if (msg.chatId === activeChatIdRef.current) {
         setMessages((prev) => [...prev, msg]);
       }
     });
 
+    // Cleanup function
     return () => socket.disconnect();
-  }, [activeChat?.id]);
+  }, []); // <-- ARREGLO VACÍO: Solo conecta al montar el componente
 
   /* ================= SELECT CHAT ================= */
   const openChat = (chat) => {
@@ -52,7 +65,7 @@ export default function AdminChatPage() {
     if (!socket) return;
 
     setActiveChat(chat);
-    setMessages([]);
+    setMessages([]); // Limpiamos la pantalla mientras carga
 
     socket.emit('join_chat', { chatId: chat.id }, () => {
       socket.emit('get_chat_messages', { chatId: chat.id }, (res) => {
@@ -83,7 +96,7 @@ export default function AdminChatPage() {
       {/* CHAT LIST */}
       <aside style={{ width: 300, borderRight: '1px solid #ddd', padding: 10 }}>
         <h3>Chats ({chats.length})</h3>
-        {!connected && <p>Desconectado</p>}
+        {!connected && <p style={{ color: 'red' }}>Desconectado. Reintentando...</p>}
 
         {chats.map((c) => (
           <div
@@ -122,6 +135,7 @@ export default function AdminChatPage() {
               <input
                 value={text}
                 onChange={(e) => setText(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && sendMessage()} // UX extra: enviar con Enter
                 style={{ flex: 1 }}
               />
               <button onClick={sendMessage}>Enviar</button>

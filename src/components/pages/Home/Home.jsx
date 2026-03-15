@@ -1,10 +1,55 @@
+import React, { useState, useEffect } from 'react';
 import styles from './Home.module.css';
 import { useNavigate } from 'react-router-dom';
 
+import { Steps } from 'intro.js-react';
+import 'intro.js/introjs.css';
+
 export default function Home() {
   const navigate = useNavigate();
+  const [enabled, setEnabled] = useState(false);
 
-  // Datos de los postres destacados
+  useEffect(() => {
+    const hasSeenTour = localStorage.getItem('tour-completed');
+    if (!hasSeenTour) {
+      const timer = setTimeout(() => {
+        setEnabled(true);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  // --- AQUÍ ESTÁN LOS PASOS ACTUALIZADOS ---
+  const steps = [
+    {
+      // Buscamos el Navbar por un ID global (asegúrate de ponerle este id a tu nav)
+      element: '#nav-principal', 
+      intro: 'Desde este menú puedes navegar rápidamente por todas las secciones de nuestra repostería.',
+      position: 'bottom'
+    },
+    {
+      element: `.${styles.homeTitle}`,
+      intro: '¡Bienvenido a Migdalis Tortas! 🧁 Aquí empieza la dulzura.',
+      position: 'bottom'
+    },
+    {
+      element: `.${styles.ctaButton}`,
+      intro: 'Haz clic aquí para ir directo a nuestro catálogo completo de postres.',
+      position: 'top'
+    },
+    {
+      // Buscamos el Chat por un ID global
+      element: '#burbuja-chat', 
+      intro: '¿Tienes alguna duda o quieres hacer un pedido especial? ¡Escríbenos por aquí!',
+      position: 'left' // Ideal si el chat está en la esquina inferior derecha
+    }
+  ];
+
+  const onExit = () => {
+    setEnabled(false);
+    localStorage.setItem('tour-completed', 'true');
+  };
+
   const featuredProducts = [
     {
       id: 1,
@@ -29,23 +74,32 @@ export default function Home() {
     }
   ];
 
-  const handleViewProducts = () => {
-    // Redirecciona a la página de productos
-    navigate('/products');
-  };
+  const handleViewProducts = () => navigate('/products');
 
   const handleProductInterest = (category) => {
-    // Redirecciona a la página de productos y hace scroll a la categoría específica
     navigate('/products', { 
-      state: { 
-        scrollToCategory: category 
-      } 
+      state: { scrollToCategory: category } 
     });
   };
 
   return (
     <div className={styles.homeContainer}>
-      {/* Hero Section */}
+      
+      <Steps
+        enabled={enabled}
+        steps={steps}
+        initialStep={0}
+        onExit={onExit}
+        options={{
+          nextLabel: 'Siguiente',
+          prevLabel: 'Anterior',
+          doneLabel: '¡Entendido!',
+          exitOnOverlayClick: false,
+          showStepNumbers: true,
+          overlayOpacity: 0.7
+        }}
+      />
+
       <section className={styles.heroSection}>
         <h1 className={styles.homeTitle}>
           ¡Bienvenido a la Repostería "Migdalis Tortas"! 
@@ -64,7 +118,6 @@ export default function Home() {
         </button>
       </section>
 
-      {/* Featured Products Section */}
       <section className={styles.featuredSection}>
         <h2 className={styles.sectionTitle}>Postres Destacados</h2>
         <div className={styles.productsGrid}>
@@ -76,7 +129,6 @@ export default function Home() {
               <div className={styles.productInfo}>
                 <h3 className={styles.productName}>{product.name}</h3>
                 <p className={styles.productDescription}>{product.description}</p>
-                <p className={styles.productPrice}>{product.price}</p>
                 <button 
                   className={styles.orderButton}
                   onClick={() => handleProductInterest(product.category)}
@@ -89,7 +141,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className={styles.footer}>
         <div className={styles.footerContent}>
           <p className={styles.footerText}>
@@ -97,9 +148,6 @@ export default function Home() {
           </p>
           <p className={styles.copyright}>
             © {new Date().getFullYear()} Migdalis Tortas. Todos los derechos reservados.
-          </p>
-          <p className={styles.copyright}>
-            Diseñado con 💜 para los amantes de la repostería
           </p>
         </div>
       </footer>
