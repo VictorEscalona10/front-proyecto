@@ -66,6 +66,7 @@ const Modal = ({ show, type, message, onConfirm, onClose, autoHide }) => {
 };
 
 export const PDFTester = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
   const [loading, setLoading] = useState(false);
   const [modal, setModal] = useState({
     show: false,
