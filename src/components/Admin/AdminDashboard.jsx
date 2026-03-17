@@ -26,7 +26,6 @@ export function AdminDashboard({ onShowModal }) {
     { path: '/admin/orders', name: 'Órdenes', icon: '' },
     { path: '/admin/stats', name: 'Estadísticas', icon: '' },
     { path: '/admin/pdf-tester', name: 'PDF Tester', icon: '' },
-    { path: '/admin/backup', name: 'Respaldos', icon: '' },
     { path: '/admin/customization', name: 'Personalización', icon: '' },
     { path: '/admin/chats', name: 'Chats', icon: '' },
   ];
@@ -115,7 +114,6 @@ export function AdminDashboard({ onShowModal }) {
             <Route path="stats" element={<StatsPage onShowModal={onShowModal} />} />
             <Route path="orders" element={<OrderPage onShowModal={onShowModal} />} />
             <Route path="pdf-tester" element={<PDFTester onShowModal={onShowModal} />} />
-            <Route path="backup" element={<BackupPage onShowModal={onShowModal} />} />
             <Route path="chats" element={<AdminChatPage onShowModal={onShowModal} />} />
             
             {/* Redirección para rutas no encontradas */}
