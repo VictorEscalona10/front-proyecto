@@ -8,6 +8,20 @@ export default function Header({ onShowModal }) {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const { getTotalItems } = useCart();
 
+  const sessionClose = async () => {
+    try {
+      const response = await fetch(`${API_URL}/auth/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      if (response.ok) {
+        navigate('/login');
+      }
+    } catch (error) {
+      console.error('Error cerrando sesión:', error);
+    }
+  } 
+
   return (
     <header className={styles.header}>
       <div className={styles.container}>
@@ -59,7 +73,7 @@ export default function Header({ onShowModal }) {
               <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </Link>
-          <button onClick={() => {fetch}}>cerrar sesion</button>
+          <button onClick={sessionClose}>cerrar sesion</button>
         </div>
       </div>
 
