@@ -47,36 +47,47 @@
     cursor: not-allowed;
 }
 
-.tableContainer {
-    overflow-x: auto;
+/* Estructura de lista sin tablas */
+.listContainer {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    overflow: hidden;
 }
 
-.table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.table th,
-.table td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-}
-
-.table th {
+.listHeader {
+    display: flex;
     background-color: #f8f9fa;
     font-weight: 600;
+    padding: 12px 16px;
+    border-bottom: 2px solid #eee;
 }
 
-.loading {
+.listItem {
+    display: flex;
+    padding: 12px 16px;
+    border-bottom: 1px solid #eee;
+    align-items: center;
+}
+
+.listItem:last-child {
+    border-bottom: none;
+}
+
+.colName {
+    flex: 1;
+    color: #333;
+}
+
+.colActions {
+    width: 120px;
+    text-align: right;
+}
+
+.message {
     text-align: center;
-    padding: 20px;
-    font-size: 18px;
+    padding: 30px;
     color: #666;
-}
-
-.empty {
-    text-align: center;
-    padding: 20px;
-    color: #888;
+    font-size: 16px;
 }
