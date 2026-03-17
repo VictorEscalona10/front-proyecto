@@ -1,26 +1,20 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useCart } from './context/CartContext';
+import { useAuth } from './hooks/AuthContext';
 import CartDropdown from './components/pages/CartDropdown';
 import styles from './Header.module.css';
 
 export default function Header({ onShowModal }) {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const { getTotalItems } = useCart();
+  const { isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
 
-  const sessionClose = async () => {
-    try {
-      const response = await fetch(`${API_URL}/auth/logout`, {
-        method: 'POST',
-        credentials: 'include',
-      });
-      if (response.ok) {
-        navigate('/login');
-      }
-    } catch (error) {
-      console.error('Error cerrando sesión:', error);
-    }
-  } 
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
 
   return (
     <header className={styles.header}>
@@ -43,7 +37,6 @@ export default function Header({ onShowModal }) {
         </div>
         
         <nav className={styles.nav} id="nav-principal">
-          {/* Cambiar "PEDIDOS" por "MIS PEDIDOS" y la ruta por "/my-orders" */}
           <Link to="/my-orders" className={styles.navLink}>MIS PEDIDOS</Link>
           <Link to="/Products" className={styles.navLink}>PRODUCTOS</Link>
           <Link to="/About" className={styles.navLink}>NOSOTROS</Link>
@@ -66,18 +59,23 @@ export default function Header({ onShowModal }) {
             )}
           </button>
 
-          {/* Botón de Login */}
-          <Link to="/login" className={styles.loginButton}>
-            <svg className={styles.loginIcon} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </Link>
-          <button onClick={sessionClose}>cerrar sesion</button>
+          {/* Botón de Login o Cerrar Sesión según el estado de autenticación */}
+          {isAuthenticated ? (
+            <button onClick={handleLogout} className={styles.loginButton}>
+              Cerrar Sesión
+            </button>
+          ) : (
+            <Link to="/login" className={styles.loginButton}>
+              <svg className={styles.loginIcon} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </Link>
+          )}
         </div>
       </div>
 
-      {/* Dropdown del Carrito - Ahora con onShowModal */}
+      {/* Dropdown del Carrito */}
       <CartDropdown 
         isOpen={isCartOpen} 
         onClose={() => setIsCartOpen(false)}
