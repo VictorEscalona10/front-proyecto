@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './forgot.password.module.css';
+import logo from '../../../assest/img/logo.jpg';
 
 export default function RecuperarContraseña() {
   const [email, setEmail] = useState('');
@@ -108,6 +109,12 @@ export default function RecuperarContraseña() {
 
         <div className={styles.logoSection}>
           <div className={styles.logoContainer}>
+            <img 
+              src={logo} 
+              alt="Logo Migdalis Tortas" 
+              className={styles.logoImage}
+              style={{ cursor: 'pointer' }}
+            />
             <h1 className={styles.logo}>MIGDALIS<br />TORTAS</h1>
             <p className={styles.est}>EST. 2008</p>
           </div>
