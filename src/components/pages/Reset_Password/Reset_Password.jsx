@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import styles from './Reset.password.module.css';
+import logo from '../../../assest/img/logo.jpg';
 
 export default function ResetPassword({ onShowModal }) {
   const [password, setPassword] = useState('');
@@ -117,8 +118,14 @@ export default function ResetPassword({ onShowModal }) {
         </div>
         
         <div className={styles.logoSection}>
-          <h1 className={styles.logo}>MAGNOLIA<br />TORTAS</h1>
-          <p className={styles.est}>EST. 2006</p>
+          <img 
+            src={logo} 
+            alt="Logo Migdalis Tortas" 
+            className={styles.logoImage}
+            style={{ cursor: 'pointer' }}
+          />
+          <h1 className={styles.logo}>MIGDALIS<br />TORTAS</h1>
+          <p className={styles.est}>EST. 2008</p>
         </div>
       </div>
     );
@@ -203,8 +210,14 @@ export default function ResetPassword({ onShowModal }) {
       </div>
 
       <div className={styles.logoSection}>
-        <h1 className={styles.logo}>MAGNOLIA<br />TORTAS</h1>
-        <p className={styles.est}>EST. 2006</p>
+        <img 
+          src={logo} 
+          alt="Logo Migdalis Tortas" 
+          className={styles.logoImage}
+          style={{ cursor: 'pointer' }}
+        />
+        <h1 className={styles.logo}>MIGDALIS<br />TORTAS</h1>
+        <p className={styles.est}>EST. 2008</p>
       </div>
     </div>
   );
