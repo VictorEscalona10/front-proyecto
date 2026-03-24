@@ -101,28 +101,10 @@ export default function Products({ onShowModal }) {
               <ProductsComponent categoria='galletas' onShowModal={onShowModal}/>
             </div>
 
-            {/* Sección de Donas */}
-            <div ref={donasRef} className={styles.categorySection}>
-              <h2 className={styles.categoria}>Donas</h2>
-              <ProductsComponent categoria='donas' onShowModal={onShowModal}/>
-            </div>
-
             {/* Sección de Ponques */}
             <div ref={ponquesRef} className={styles.categorySection}>
               <h2 className={styles.categoria}>Ponques</h2>
               <ProductsComponent categoria='ponques' onShowModal={onShowModal}/>
-            </div>
-
-            {/* Sección de Pasapalos Dulces */}
-            <div ref={pasapalosDulcesRef} className={styles.categorySection}>
-              <h2 className={styles.categoria}>Pasapalos Dulces</h2>
-              <ProductsComponent categoria='pasapalos dulces' onShowModal={onShowModal}/>
-            </div>
-
-            {/* Sección de Pasapalos Salados */}
-            <div ref={pasapalosSaladosRef} className={styles.categorySection}>
-              <h2 className={styles.categoria}>Pasapalos Salados</h2>
-              <ProductsComponent categoria='pasapalos salados' onShowModal={onShowModal}/>
             </div>
           </div>
         </div>
