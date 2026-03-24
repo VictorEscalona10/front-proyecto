@@ -273,6 +273,8 @@
   border-top: 2px solid #f0e6f5;
   background: white;
   border-radius: 0 0 15px 15px;
+  /* CAMBIO: Agregar flex-shrink */
+  flex-shrink: 0; /* Evita que la caja de texto se comprima */
 }
 
 .chat-input-form {
