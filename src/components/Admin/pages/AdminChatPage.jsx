@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
+import './AdminChatPage.css';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
