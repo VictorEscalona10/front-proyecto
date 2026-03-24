@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from '../../../hooks/AuthContext.jsx';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import styles from "./login.module.css";
 import logo from '../../../assest/img/logo.jpg';
 
@@ -175,7 +176,7 @@ export default function Login({ onShowModal }) {
 
             <div className={styles.inputGroup}>
               <label htmlFor="password">CONTRASEÑA</label>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div className={styles.passwordWrapper}>
                 <input
                   type={showPassword ? 'text' : 'password'}
                   id="password"
@@ -186,7 +187,6 @@ export default function Login({ onShowModal }) {
                   className={`${styles.input} ${errors.password && touched.password ? styles.inputError : ""}`}
                   required
                   disabled={isLoading}
-                  style={{ flex: 1 }}
                 />
                 <button
                   type="button"
@@ -195,7 +195,7 @@ export default function Login({ onShowModal }) {
                   aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                   disabled={isLoading}
                 >
-                  {showPassword ? 'Ocultar' : 'Mostrar'}
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </button>
               </div>
               {errors.password && touched.password && (
