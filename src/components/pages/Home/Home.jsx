@@ -102,7 +102,7 @@ export default function Home() {
       <Steps
         enabled={stepsEnabled}
         steps={steps}
-        initialStep={0}
+        initialStep={1}
         onExit={onExit}
         options={{
           doneLabel: "¡Entendido!",
