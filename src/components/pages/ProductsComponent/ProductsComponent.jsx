@@ -35,14 +35,20 @@ export function ProductsComponent({ categoria, onShowModal }) {
       }
 
       const productsData = await response.json();
-      setProducts(productsData);
+      
+      // NUEVO: Filtramos la lista para quedarnos SOLO con los productos activos
+      const activeProducts = productsData.filter(product => product.isActive === true);
 
-      // Inicializar cantidades en 1
+      // Guardamos en el estado solo los activos
+      setProducts(activeProducts);
+
+      // Inicializar cantidades en 1 (usando la lista ya filtrada)
       const initialQuantities = {};
-      productsData.forEach((product) => {
+      activeProducts.forEach((product) => {
         initialQuantities[product.id] = 1;
       });
       setQuantities(initialQuantities);
+      
     } catch (error) {
       console.log(error);
       setError("Error al cargar los productos");
