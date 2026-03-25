@@ -17,9 +17,9 @@ export default function Home() {
   // Configuración de los pasos del tour
   const [steps] = useState([
     {
-      element: '#tour-welcome',
+      // Quitamos "element" y "position". 
+      // Intro.js automáticamente lo pondrá en el centro de la pantalla.
       intro: '¡Hola! 👋 Bienvenido a Migdalis Tortas. Te daremos un pequeño tour rápido para que conozcas la página.',
-      position: 'bottom',
     },
     {
       element: '#tour-cta',
@@ -39,8 +39,10 @@ export default function Home() {
       const hasSeenTutorial = localStorage.getItem(`tutorialSeen_${user.id}`);
       
       if (!hasSeenTutorial) {
-        // Si no lo ha visto, habilitamos el tour
-        setStepsEnabled(true);
+        // Le damos 800ms de retraso para que las animaciones de CSS terminen de cargar
+        setTimeout(() => {
+          setStepsEnabled(true);
+        }, 800);
       }
     }
   }, [isAuthenticated, user]);
