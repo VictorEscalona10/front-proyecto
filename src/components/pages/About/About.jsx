@@ -12,7 +12,7 @@ export default function about() {
         },
         {
         id: 2,
-        name: "Carlos Rodríguez",
+        name: "Alejandra Rodríguez",
         role: "ayudante de Cocina",
         description: "amiga de la fundadora, con habilidades en decoración y atención al cliente.",
         emoji: "👩‍🍳"
