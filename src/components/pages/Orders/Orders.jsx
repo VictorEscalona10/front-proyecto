@@ -363,7 +363,7 @@ useEffect(() => {
                                                 {order.orderDetails.map((detail) => (
                                                     <div key={detail.id} className="order-item">
                                                         <div className="item-image">
-                                                            {detail.product.imageUrl ? (
+                                                            {detail.product?.imageUrl ? (
                                                                 <img 
                                                                     src={detail.product.imageUrl} 
                                                                     alt={detail.product.name}
@@ -374,11 +374,28 @@ useEffect(() => {
                                                         </div>
                                                         <div className="item-info">
                                                             <p className="item-name">
-                                                                {detail.product.name}
+                                                                {detail.product?.name || "Pastel Personalizado"}
                                                             </p>
-                                                            <p className="item-description">
-                                                                {detail.product.description}
-                                                            </p>
+                                                            {detail.product?.description && (
+                                                              <p className="item-description">
+                                                                  {detail.product.description}
+                                                              </p>
+                                                            )}
+                                                            
+                                                            {/* NUEVO: Renderizado de Personalizaciones */}
+                                                            {detail.customizations && Array.isArray(detail.customizations) && detail.customizations.length > 0 && (
+                                                              <div className="item-customizations" style={{ marginTop: '8px', fontSize: '0.85rem', color: '#666' }}>
+                                                                <strong>Detalles de personalización:</strong>
+                                                                <ul style={{ listStyleType: 'disc', paddingLeft: '20px', margin: '4px 0 0 0' }}>
+                                                                  {detail.customizations.map((cust, idx) => (
+                                                                    <li key={idx}>
+                                                                      {cust.groupName}: {cust.optionName} 
+                                                                      {Number(cust.priceExtra) > 0 ? ` (+$${Number(cust.priceExtra).toFixed(2)})` : ''}
+                                                                    </li>
+                                                                  ))}
+                                                                </ul>
+                                                              </div>
+                                                            )}
                                                         </div>
                                                         <div className="item-pricing">
                                                             <p className="item-quantity">
