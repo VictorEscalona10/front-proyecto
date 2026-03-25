@@ -1,6 +1,6 @@
 // AdminDashboard.jsx - Versión CORREGIDA
 import { useState } from 'react';
-import { Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
+import { Routes, Route, Link, useLocation, Navigate, useNavigate } from 'react-router-dom';
 import './AdminDashboard.css';
 import { Category } from './pages/CategoryPage.jsx';
 import { ProductPage } from './pages/ProductPage.jsx';
@@ -10,13 +10,18 @@ import { OrderPage } from './pages/OrderPage.jsx';
 import { Users } from './pages/UsersPage.jsx';
 import { PDFTester } from './pages/PDFTester.jsx';
 import StatsPage  from './pages/StatsPage.jsx';
-import { useNavigate } from 'react-router-dom';
 import { BackupPage } from './pages/BackupPage.jsx';
+
+// NUEVO: Importar useAuth
+import { useAuth } from '../../hooks/useAuth.jsx';
 
 export function AdminDashboard({ onShowModal }) {
   const location = useLocation();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
   const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  
+  // NUEVO: Extraer la función logout del contexto global
+  const { logout } = useAuth(); 
 
   const menuItems = [
     { path: '/admin/dashboard', name: 'Dashboard', icon: '' },
@@ -31,20 +36,16 @@ export function AdminDashboard({ onShowModal }) {
     { path: '/admin/chats', name: 'Chats', icon: '' },
   ];
 
-  const API_URL = import.meta.env.VITE_API_URL;
+  // CORREGIDO: Usar la función global para limpiar la sesión en todo el frontend
   const sessionClose = async () => {
     try {
-      const response = await fetch(`${API_URL}/auth/logout`, {
-        method: 'POST',
-        credentials: 'include',
-      });
-      if (response.ok) {
-        navigate('/login');
-      }
+      await logout(); // Limpia el estado global de isAuthenticated y user
+      navigate('/login'); // Redirige al login
     } catch (error) {
       console.error('Error cerrando sesión:', error);
     }
   }
+
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
@@ -70,9 +71,9 @@ export function AdminDashboard({ onShowModal }) {
           ))}
         </div>
 
-        <div className="sidebar-footer">
-
+        <div className="sidebar-footer" style={{ cursor: 'pointer' }}>
             <span className="logout-icon"></span>
+            {/* CORREGIDO: Se llama a sessionClose al hacer click */}
             {sidebarOpen && <span onClick={sessionClose}>Salir</span>}
         </div>
       </div>
