@@ -278,7 +278,7 @@ url('https://images.unsplash.com/photo-1555507036-ab794f27d2e9?ixlib=rb-4.0.3&au
 }
 
 :global(.introjs-skipbutton) {
-  color: #888 !important;
+  color: #ffff !important;
 }
 
 :global(.introjs-progressbar) {
