@@ -245,3 +245,61 @@ url('https://images.unsplash.com/photo-1555507036-ab794f27d2e9?ixlib=rb-4.0.3&au
     font-size: 3rem;
   }
 }
+
+/* ====== INTRO.JS CUSTOM ====== */
+
+:global(.introjs-tooltip) {
+  border-radius: 16px !important;
+  padding: 20px !important;
+  font-family: 'Poppins', sans-serif !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+}
+
+:global(.introjs-tooltip-title) {
+  font-size: 18px !important;
+  font-weight: 600 !important;
+}
+
+:global(.introjs-tooltiptext) {
+  font-size: 15px !important;
+  line-height: 1.5 !important;
+}
+
+:global(.introjs-button) {
+  background-color: #8e44ad !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 8px 14px !important;
+  font-weight: 500 !important;
+}
+
+:global(.introjs-button:hover) {
+  background-color: #732d91 !important;
+}
+
+:global(.introjs-skipbutton) {
+  color: #888 !important;
+}
+
+:global(.introjs-progressbar) {
+  background-color: #8e44ad !important;
+}
+
+:global(.introjs-helperLayer) {
+  border-radius: 16px !important;
+}
+
+:global(.introjs-tooltip) {
+  animation: fadeInUp 0.3s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

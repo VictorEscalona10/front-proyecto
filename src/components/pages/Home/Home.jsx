@@ -16,22 +16,22 @@ export default function Home() {
 
   // Configuración de los pasos del tour
   const [steps] = useState([
-    {
-      // Quitamos "element" y "position". 
-      // Intro.js automáticamente lo pondrá en el centro de la pantalla.
-      intro: '¡Hola! 👋 Bienvenido a Migdalis Tortas. Te daremos un pequeño tour rápido para que conozcas la página.',
-    },
-    {
-      element: '#tour-cta',
-      intro: 'Aquí puedes ir a ver nuestro catálogo completo de productos. ¡Tenemos de todo para endulzar tu día!',
-      position: 'bottom',
-    },
-    {
-      element: '#tour-featured',
-      intro: 'También puedes ver nuestros postres más destacados y pedirlos directamente desde aquí.',
-      position: 'top',
-    }
-  ]);
+  {
+    element: '#tour-welcome',
+    intro: '¡Hola! 👋 Bienvenido a Migdalis Tortas. Te daremos un pequeño tour rápido para que conozcas la página.',
+    position: 'bottom',
+  },
+  {
+    element: '#tour-cta',
+    intro: 'Aquí puedes ir a ver nuestro catálogo completo de productos. ¡Tenemos de todo para endulzar tu día!',
+    position: 'bottom',
+  },
+  {
+    element: '#tour-featured',
+    intro: 'También puedes ver nuestros postres más destacados y pedirlos directamente desde aquí.',
+    position: 'top',
+  }
+]);
 
   useEffect(() => {
     // Si el usuario está logueado, verificamos si ya vio el tutorial
@@ -95,20 +95,21 @@ export default function Home() {
       
       {/* Componente de Intro.js */}
       <Steps
-        enabled={stepsEnabled}
-        steps={steps}
-        initialStep={0}
-        onExit={onExit}
-        options={{
-          doneLabel: '¡Entendido!',
-          nextLabel: 'Siguiente',
-          prevLabel: 'Atrás',
-          skipLabel: 'Saltar',
-          showProgress: true,
-          showBullets: false,
-          overlayOpacity: 0.7,
-        }}
-      />
+  enabled={stepsEnabled}
+  steps={steps}
+  initialStep={0}
+  onExit={onExit}
+  options={{
+    doneLabel: '¡Entendido!',
+    nextLabel: 'Siguiente',
+    prevLabel: 'Atrás',
+    skipLabel: 'Saltar',
+    showProgress: true,
+    showBullets: false,
+    overlayOpacity: 0.6,
+    scrollToElement: true,
+  }}
+/>
 
       {/* Hero Section */}
       <section className={styles.heroSection}>
