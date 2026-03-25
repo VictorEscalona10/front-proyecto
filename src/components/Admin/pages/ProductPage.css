@@ -1204,6 +1204,58 @@ input[type="file"] {
   display: none;
 }
 
+/* Contenedor de las acciones del producto */
+.product-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+  border-top: 1px dashed #f0e6f5;
+  padding-top: 15px;
+}
+
+/* Estilos compartidos para los botones de las tarjetas */
+.edit-btn, .delete-btn {
+  flex: 1;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Comic Sans MS', cursive;
+  text-align: center;
+}
+
+/* Estilo específico para Editar */
+.edit-btn {
+  background: linear-gradient(135deg, #17a2b8, #138496);
+  color: white;
+}
+
+.edit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(23, 162, 184, 0.3);
+}
+
+/* Estilo específico para Eliminar */
+.delete-btn {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  color: white;
+}
+
+.delete-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+}
+
+.delete-btn:disabled, .edit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .modal-content {
@@ -1211,3 +1263,4 @@ input[type="file"] {
     max-height: 90vh;
   }
 }
+

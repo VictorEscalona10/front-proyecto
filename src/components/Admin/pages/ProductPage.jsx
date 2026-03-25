@@ -18,16 +18,18 @@ export function ProductPage({ onShowModal }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [availableCategories, setAvailableCategories] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [deletingId, setDeletingId] = useState(null); // Nuevo estado para controlar eliminación
+  const [deletingId, setDeletingId] = useState(null);
+  
+  // NUEVO: Estado para saber si estamos editando (guarda el ID) o creando (null)
+  const [editingId, setEditingId] = useState(null); 
 
   const API_URL = import.meta.env.VITE_API_URL;
 
-  // Cargar todos los productos al inicio
   useEffect(() => {
     getAllProducts();
+    getAllCategories(); // Cargamos las categorías de una vez
   }, []);
 
-  // Agrupar productos por categoría cuando cambia la lista de productos
   useEffect(() => {
     groupProductsByCategory();
   }, [products]);
@@ -43,19 +45,16 @@ export function ProductPage({ onShowModal }) {
     }
   };
 
-  // Función para agrupar productos por categoría
   const groupProductsByCategory = () => {
     const grouped = {};
     const categoryList = [];
 
     products.forEach((product) => {
       const categoryName = product.category?.name || "Sin Categoría";
-
       if (!grouped[categoryName]) {
         grouped[categoryName] = [];
         categoryList.push(categoryName);
       }
-
       grouped[categoryName].push(product);
     });
 
@@ -63,15 +62,11 @@ export function ProductPage({ onShowModal }) {
     setCategories(categoryList.sort());
   };
 
-  // Obtener todos los productos
   const getAllProducts = async () => {
     try {
       const response = await fetch(`${API_URL}/products`);
       if (!response.ok) {
-        // Si el endpoint /products no existe, usar búsqueda vacía como fallback
-        const fallbackResponse = await fetch(
-          `${API_URL}/products/search/name?name=`,
-        );
+        const fallbackResponse = await fetch(`${API_URL}/products/search/name?name=`);
         const fallbackResult = await fallbackResponse.json();
         setProducts(fallbackResult.data || []);
         return;
@@ -80,26 +75,13 @@ export function ProductPage({ onShowModal }) {
       setProducts(result.data || []);
     } catch (error) {
       console.error("Error fetching products:", error);
-      // Fallback: intentar obtener productos mediante búsqueda vacía
-      try {
-        const fallbackResponse = await fetch(
-          `${API_URL}/products/search/name?name=`,
-        );
-        const fallbackResult = await fallbackResponse.json();
-        setProducts(fallbackResult.data || []);
-      } catch (fallbackError) {
-        console.error("Fallback also failed:", fallbackError);
-        setProducts([]);
-      }
+      setProducts([]);
     }
   };
 
-  // Función para buscar productos por nombre
   const getProductByName = async (name) => {
     try {
-      const response = await fetch(
-        `${API_URL}/products/search/name?name=${encodeURIComponent(name)}`,
-      );
+      const response = await fetch(`${API_URL}/products/search/name?name=${encodeURIComponent(name)}`);
       const result = await response.json();
       setProducts(result.data || []);
     } catch (error) {
@@ -108,14 +90,10 @@ export function ProductPage({ onShowModal }) {
     }
   };
 
-  // Función para buscar productos por categoría usando ID
   const getProductsByCategory = async (categoryId) => {
     try {
-      const response = await fetch(
-        `${API_URL}/products/search/category?id=${encodeURIComponent(categoryId)}`,
-      );
+      const response = await fetch(`${API_URL}/products/search/category?id=${encodeURIComponent(categoryId)}`);
       const result = await response.json();
-      console.log("Category search result:", result);
       setProducts(result.data || []);
     } catch (error) {
       console.error("Error fetching products by category:", error);
@@ -123,13 +101,11 @@ export function ProductPage({ onShowModal }) {
     }
   };
 
-  // Función unificada de búsqueda
   const handleSearch = () => {
     if (!searchTerm.trim()) {
       getAllProducts();
       return;
     }
-
     if (searchType === "name") {
       getProductByName(searchTerm);
     } else {
@@ -137,105 +113,80 @@ export function ProductPage({ onShowModal }) {
     }
   };
 
-  // Función para manejar cambios en el formulario
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-
     if (name === "name") {
       const onlyLetters = value.replace(/[0-9]/g, "");
-      setFormData((prev) => ({
-        ...prev,
-        name: onlyLetters,
-      }));
+      setFormData((prev) => ({ ...prev, name: onlyLetters }));
       return;
     }
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Función para manejar archivos
   const handleFileChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      imagen: e.target.files[0],
-    }));
+    setFormData((prev) => ({ ...prev, imagen: e.target.files[0] }));
   };
 
-  // Función para enviar el formulario
+  // NUEVO: Modificado para manejar tanto POST (Crear) como PUT (Editar)
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setUploadResult("Enviando...");
 
     const fd = new FormData();
     fd.append("name", formData.name);
     fd.append("description", formData.description);
     fd.append("price", formData.price);
-    fd.append("categoryId", Number(formData.categoryId));
+    
+    // El backend espera 'categoryName' en tu DTO. Lo buscamos de la lista de categorías
+    const selectedCategory = availableCategories.find(c => String(c.id) === String(formData.categoryId));
+    if (selectedCategory) {
+      fd.append("categoryName", selectedCategory.name);
+    }
 
     if (formData.imagen) {
       fd.append("imagen", formData.imagen);
     }
 
+    // Configurar URL y método según si estamos editando o creando
+    const isEditing = editingId !== null;
+    const url = isEditing 
+      ? `${API_URL}/products/edit/${editingId}` 
+      : `${API_URL}/products/create`;
+    const method = isEditing ? "PUT" : "POST";
+
     try {
-      const response = await fetch(`${API_URL}/products/create`, {
-        method: "POST",
+      const response = await fetch(url, {
+        method,
         credentials: "include",
         body: fd,
       });
 
-      const text = await response.text();
-      let output;
-      try {
-        output = JSON.stringify(JSON.parse(text), null, 2);
-      } catch {
-        output = text;
-      }
-
-      setUploadResult(
-        `HTTP ${response.status} ${response.statusText}\n\n${output}`,
-      );
+      const data = await response.json().catch(() => ({}));
 
       if (response.ok) {
-        setFormData({
-          name: "",
-          description: "",
-          price: "",
-          categoryId: "",
-          imagen: null,
-        });
-        document.getElementById("imagen").value = "";
+        closeModal();
         getAllProducts();
 
         if (onShowModal) {
           onShowModal({
             type: "success",
-            message: "✅ Producto creado con éxito",
+            message: isEditing ? "✅ Producto actualizado con éxito" : "✅ Producto creado con éxito",
             autoClose: true,
           });
         }
-
-        setTimeout(() => {
-          setShowModal(false);
-          setUploadResult("");
-        }, 2000);
       } else {
         if (onShowModal) {
           onShowModal({
             type: "error",
-            message: "Error al crear el producto",
+            message: data.message || `Error al ${isEditing ? "actualizar" : "crear"} el producto`,
           });
         }
       }
     } catch (error) {
-      setUploadResult("Error de red: " + error.message);
       if (onShowModal) {
         onShowModal({
           type: "error",
-          message: "Error de red al crear el producto",
+          message: "Error de red al procesar el producto",
         });
       }
     } finally {
@@ -243,90 +194,73 @@ export function ProductPage({ onShowModal }) {
     }
   };
 
-  // Función para manejar búsqueda con Enter
   const handleKeyPress = (e) => {
-    if (e.key === "Enter") {
-      handleSearch();
-    }
+    if (e.key === "Enter") handleSearch();
   };
 
-  // Función para limpiar búsqueda y mostrar todos los productos
   const clearSearch = () => {
     setSearchTerm("");
     getAllProducts();
   };
 
-  // Función para abrir el modal
+  // NUEVO: Abrir modal para CREAR
   const openModal = () => {
+    setEditingId(null);
+    setFormData({ name: "", description: "", price: "", categoryId: "", imagen: null });
     setShowModal(true);
-    setUploadResult("");
-    getAllCategories();
+    if (availableCategories.length === 0) getAllCategories();
   };
 
-  // Función para cerrar el modal
+  // NUEVO: Abrir modal para EDITAR
+  const openEditModal = (product) => {
+    setEditingId(product.id);
+    setFormData({
+      name: product.name,
+      description: product.description || "",
+      price: product.price,
+      categoryId: product.categoryId || "",
+      imagen: null, // No precargamos la imagen en el input file
+    });
+    setShowModal(true);
+    if (availableCategories.length === 0) getAllCategories();
+  };
+
   const closeModal = () => {
     setShowModal(false);
-    setFormData({
-      name: "",
-      description: "",
-      price: "",
-      categoryId: "",
-      imagen: null,
-    });
-    setUploadResult("");
+    setEditingId(null);
+    setFormData({ name: "", description: "", price: "", categoryId: "", imagen: null });
     const fileInput = document.getElementById("imagen");
     if (fileInput) fileInput.value = "";
   };
 
-  // --- NUEVA FUNCIÓN PARA ELIMINAR PRODUCTO (SOFT DELETE) ---
   const handleDeleteProduct = async (productId) => {
-    if (!window.confirm("¿Estás seguro de que deseas eliminar este producto?")) {
-      return;
-    }
-
+    if (!window.confirm("¿Estás seguro de que deseas eliminar este producto?")) return;
     setDeletingId(productId);
     try {
       const response = await fetch(`${API_URL}/products/${productId}`, {
         method: "DELETE",
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       });
 
       if (response.status === 204) {
-        // Éxito: sin contenido
-        // Actualizar la lista de productos eliminando el producto o recargando
-        setProducts((prevProducts) =>
-          prevProducts.filter((p) => p.id !== productId)
-        );
+        setProducts((prev) => prev.filter((p) => p.id !== productId));
         if (onShowModal) {
-          onShowModal({
-            type: "success",
-            message: "🗑️ Producto eliminado correctamente",
-            autoClose: true,
-          });
+          onShowModal({ type: "success", message: "🗑️ Producto eliminado correctamente", autoClose: true });
         }
       } else {
-        // Manejar errores
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || "Error al eliminar el producto");
       }
     } catch (error) {
-      console.error("Error deleting product:", error);
       if (onShowModal) {
-        onShowModal({
-          type: "error",
-          message: error.message || "Error al eliminar el producto",
-        });
+        onShowModal({ type: "error", message: error.message || "Error al eliminar el producto" });
       }
     } finally {
       setDeletingId(null);
     }
   };
-  // ----------------------------------------------------------
 
-  // Calcular el total de productos
   const totalProducts = products.length;
 
   return (
@@ -337,7 +271,6 @@ export function ProductPage({ onShowModal }) {
       </header>
 
       <div className="page-content">
-        {/* Sección de búsqueda */}
         <section className="search-section">
           <h2>Buscar Productos</h2>
           <div className="search-controls">
@@ -373,64 +306,36 @@ export function ProductPage({ onShowModal }) {
                   onKeyPress={handleKeyPress}
                 />
                 {searchTerm && (
-                  <button
-                    className="clear-search-btn"
-                    onClick={clearSearch}
-                    type="button"
-                  >
-                    X
-                  </button>
+                  <button className="clear-search-btn" onClick={clearSearch} type="button">X</button>
                 )}
               </div>
-              <button
-                className="search-btn"
-                onClick={handleSearch}
-                disabled={!searchTerm.trim()}
-              >
+              <button className="search-btn" onClick={handleSearch} disabled={!searchTerm.trim()}>
                 Buscar
               </button>
             </div>
           </div>
         </section>
 
-        {/* Sección de resultados */}
         <section className="results-section">
           <div className="results-header">
             <h3>
               {searchTerm
                 ? `Resultados de búsqueda ${searchType === "name" ? "por nombre" : "por categoría"}`
                 : "Todos los Productos"}
-              {totalProducts > 0 && (
-                <span className="results-count">
-                  {" "}
-                  ({totalProducts} productos)
-                </span>
-              )}
+              {totalProducts > 0 && <span className="results-count"> ({totalProducts} productos)</span>}
             </h3>
             {totalProducts > 0 && (
-              <button
-                className="clear-results"
-                onClick={() => {
-                  setProducts([]);
-                  setSearchTerm("");
-                }}
-              >
-                Limpiar resultados
-              </button>
+              <button className="clear-results" onClick={clearSearch}>Limpiar resultados</button>
             )}
           </div>
 
-          {/* Mostrar productos agrupados por categoría */}
           {totalProducts > 0 ? (
             <div className="categories-container">
               {categories.map((categoryName) => (
                 <div key={categoryName} className="category-section">
                   <div className="category-header">
                     <h4 className="category-title">{categoryName}</h4>
-                    <span className="category-count">
-                      {groupedProducts[categoryName].length} producto
-                      {groupedProducts[categoryName].length !== 1 ? "s" : ""}
-                    </span>
+                    <span className="category-count">{groupedProducts[categoryName].length} productos</span>
                   </div>
                   <div className="products-grid">
                     {groupedProducts[categoryName].map((product) => (
@@ -444,39 +349,32 @@ export function ProductPage({ onShowModal }) {
                         </div>
                         <div className="product-info">
                           <h4>{product.name}</h4>
-                          <p className="product-description">
-                            {product.description}
-                          </p>
+                          <p className="product-description">{product.description}</p>
                           <p className="product-price">${product.price}</p>
                           <div className="product-meta">
-                            <span className="product-category">
-                              {product.category?.name}
-                            </span>
-                            <span className="product-id">
-                              ID: {String(product.id).slice(0, 8)}
-                            </span>
+                            <span className="product-category">{product.category?.name}</span>
+                            <span className="product-id">ID: {String(product.id).slice(0, 8)}</span>
                           </div>
-                          {/* BOTÓN DE ELIMINAR CON ESTADO DESACTIVADO/ACTIVADO */}
+                          
+                          {/* NUEVO: Botones de Acción (Editar y Eliminar) */}
                           <div className="product-actions">
+                            <button
+                              className="edit-btn"
+                              onClick={() => openEditModal(product)}
+                              title="Editar producto"
+                            >
+                              Editar
+                            </button>
                             <button
                               className={`delete-btn ${!product.isActive ? "disabled" : ""}`}
                               onClick={() => handleDeleteProduct(product.id)}
-                              disabled={
-                                deletingId === product.id || !product.isActive
-                              }
-                              title={
-                                !product.isActive
-                                  ? "Producto ya eliminado"
-                                  : "Eliminar producto"
-                              }
+                              disabled={deletingId === product.id || !product.isActive}
+                              title={!product.isActive ? "Producto ya eliminado" : "Eliminar producto"}
                             >
-                              {deletingId === product.id
-                                ? "Eliminando..."
-                                : !product.isActive
-                                ? "Eliminado"
-                                : "Eliminar"}
+                              {deletingId === product.id ? "..." : !product.isActive ? "Eliminado" : "Eliminar"}
                             </button>
                           </div>
+                          
                         </div>
                       </div>
                     ))}
@@ -486,39 +384,24 @@ export function ProductPage({ onShowModal }) {
             </div>
           ) : (
             <div className="no-products">
-              {searchTerm ? (
-                <p>
-                  No se encontraron productos{" "}
-                  {searchType === "name"
-                    ? "con ese nombre"
-                    : "en esa categoría"}
-                </p>
-              ) : (
-                <p>No hay productos disponibles en este momento</p>
-              )}
+              <p>No hay productos disponibles en este momento</p>
             </div>
           )}
         </section>
       </div>
 
-      {/* Botón flotante para agregar producto */}
-      <button
-        className="floating-add-btn"
-        onClick={openModal}
-        title="Agregar nuevo producto"
-      >
+      <button className="floating-add-btn" onClick={openModal} title="Agregar nuevo producto">
         +
       </button>
 
-      {/* Modal para agregar producto */}
+      {/* Modal dinámico para Crear/Editar */}
       {showModal && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>Agregar Nuevo Producto</h2>
-              <button className="close-btn" onClick={closeModal}>
-                ×
-              </button>
+              {/* Título dinámico */}
+              <h2>{editingId ? "Editar Producto" : "Agregar Nuevo Producto"}</h2>
+              <button className="close-btn" onClick={closeModal}>×</button>
             </div>
             <div className="modal-body">
               <form className="product-form" onSubmit={handleSubmit}>
@@ -551,7 +434,7 @@ export function ProductPage({ onShowModal }) {
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label htmlFor="price">Precio</label>
+                    <label htmlFor="price">Precio *</label>
                     <input
                       type="number"
                       id="price"
@@ -559,45 +442,46 @@ export function ProductPage({ onShowModal }) {
                       value={formData.price}
                       onChange={handleInputChange}
                       step="0.01"
+                      required
                       placeholder="0.00"
                     />
                   </div>
 
                   <div className="form-group">
-                    <label htmlFor="categoryId">Categoría (ID)</label>
-                    <div className="form-group">
-                      <label htmlFor="categoryId">Categoría *</label>
-                      <select
-                        id="categoryId"
-                        name="categoryId"
-                        value={formData.categoryId}
-                        onChange={handleInputChange}
-                        required
-                      >
-                        <option value="">Selecciona una categoría</option>
-                        {availableCategories.map((category) => (
-                          <option key={category.id} value={category.id}>
-                            {category.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                    <label htmlFor="categoryId">Categoría *</label>
+                    <select
+                      id="categoryId"
+                      name="categoryId"
+                      value={formData.categoryId}
+                      onChange={handleInputChange}
+                      required
+                    >
+                      <option value="">Selecciona una categoría</option>
+                      {availableCategories.map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="imagen">Imagen *</label>
+                  {/* La imagen es obligatoria al crear, opcional al editar */}
+                  <label htmlFor="imagen">Imagen {editingId ? "(Opcional si no deseas cambiarla)" : "*"}</label>
                   <input
                     type="file"
                     id="imagen"
                     name="imagen"
                     onChange={handleFileChange}
                     accept="image/*"
+                    required={!editingId} 
                   />
                 </div>
 
+                {/* Botón dinámico */}
                 <button type="submit" className="submit-btn" disabled={loading}>
-                  {loading ? "Enviando..." : "Subir Producto"}
+                  {loading ? "Enviando..." : (editingId ? "Guardar Cambios" : "Subir Producto")}
                 </button>
               </form>
             </div>
@@ -607,4 +491,3 @@ export function ProductPage({ onShowModal }) {
     </div>
   );
 }
-
