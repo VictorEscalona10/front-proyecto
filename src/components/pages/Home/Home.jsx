@@ -1,53 +1,60 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './Home.module.css';
 import { useNavigate } from 'react-router-dom';
-
-import { Steps } from 'intro.js-react';
-import 'intro.js/introjs.css';
+import { useAuth } from '../../../hooks/AuthContext';
+import Joyride, { STATUS } from 'react-joyride'; // Importamos la librería
 
 export default function Home() {
   const navigate = useNavigate();
-  const [enabled, setEnabled] = useState(false);
+  const { isAuthenticated, user } = useAuth();
+  
+  // Estado de React Joyride
+  const [{ run, steps }, setState] = useState({
+    run: false,
+    steps: [
+      {
+        target: 'body',
+        content: '¡Hola! 👋 Bienvenido a Migdalis Tortas. Te daremos un pequeño tour rápido para que conozcas la página.',
+        placement: 'center',
+        disableBeacon: true, // Empieza directo sin el puntito parpadeante
+      },
+      {
+        target: '#tour-cta',
+        content: 'Aquí puedes ir a ver nuestro catálogo completo de productos. ¡Tenemos de todo!',
+        placement: 'bottom',
+      },
+      {
+        target: '#tour-featured',
+        content: 'También puedes ver nuestros postres más destacados y pedirlos directamente desde aquí.',
+        placement: 'top',
+      }
+    ]
+  });
 
   useEffect(() => {
-    const hasSeenTour = localStorage.getItem('tour-completed');
-    if (!hasSeenTour) {
-      const timer = setTimeout(() => {
-        setEnabled(true);
-      }, 500);
-      return () => clearTimeout(timer);
+    // Si el usuario está logueado, revisamos si ya vio el tutorial
+    if (isAuthenticated && user) {
+      const hasSeenTutorial = localStorage.getItem(`tutorialSeen_${user.id}`);
+      
+      if (!hasSeenTutorial) {
+        // Si no lo ha visto, arrancamos el tour
+        setState(s => ({ ...s, run: true }));
+      }
     }
-  }, []);
+  }, [isAuthenticated, user]);
 
-  // --- AQUÍ ESTÁN LOS PASOS ACTUALIZADOS ---
-  const steps = [
-    {
-      // Buscamos el Navbar por un ID global (asegúrate de ponerle este id a tu nav)
-      element: '#nav-principal', 
-      intro: 'Desde este menú puedes navegar rápidamente por todas las secciones de nuestra repostería.',
-      position: 'bottom'
-    },
-    {
-      element: `.${styles.homeTitle}`,
-      intro: '¡Bienvenido a Migdalis Tortas! 🧁 Aquí empieza la dulzura.',
-      position: 'bottom'
-    },
-    {
-      element: `.${styles.ctaButton}`,
-      intro: 'Haz clic aquí para ir directo a nuestro catálogo completo de postres.',
-      position: 'top'
-    },
-    {
-      // Buscamos el Chat por un ID global
-      element: '#burbuja-chat', 
-      intro: '¿Tienes alguna duda o quieres hacer un pedido especial? ¡Escríbenos por aquí!',
-      position: 'left' // Ideal si el chat está en la esquina inferior derecha
+  // Esta función maneja cuando el usuario termina o salta el tour
+  const handleJoyrideCallback = (data) => {
+    const { status } = data;
+    const finishedStatuses = [STATUS.FINISHED, STATUS.SKIPPED];
+
+    if (finishedStatuses.includes(status)) {
+      setState({ run: false });
+      if (user) {
+        // Guardamos en el navegador que ya lo completó
+        localStorage.setItem(`tutorialSeen_${user.id}`, 'true');
+      }
     }
-  ];
-
-  const onExit = () => {
-    setEnabled(false);
-    localStorage.setItem('tour-completed', 'true');
   };
 
   const featuredProducts = [
@@ -74,7 +81,9 @@ export default function Home() {
     }
   ];
 
-  const handleViewProducts = () => navigate('/products');
+  const handleViewProducts = () => {
+    navigate('/products');
+  };
 
   const handleProductInterest = (category) => {
     navigate('/products', { 
@@ -85,21 +94,40 @@ export default function Home() {
   return (
     <div className={styles.homeContainer}>
       
-      <Steps
-        enabled={enabled}
+      {/* Componente principal del Tour Guiado */}
+      <Joyride
+        callback={handleJoyrideCallback}
+        continuous
+        hideCloseButton
+        run={run}
+        scrollToFirstStep
+        showProgress
+        showSkipButton
         steps={steps}
-        initialStep={0}
-        onExit={onExit}
-        options={{
-          nextLabel: 'Siguiente',
-          prevLabel: 'Anterior',
-          doneLabel: '¡Entendido!',
-          exitOnOverlayClick: false,
-          showStepNumbers: true,
-          overlayOpacity: 0.7
+        styles={{
+          options: {
+            zIndex: 10000,
+            primaryColor: '#8b008b', // Tu color morado
+            textColor: '#510138',
+          },
+          buttonNext: {
+            backgroundColor: '#d719da',
+          },
+          buttonBack: {
+            marginRight: 10,
+            color: '#8b008b'
+          }
+        }}
+        locale={{
+          back: 'Atrás',
+          close: 'Cerrar',
+          last: '¡Entendido!',
+          next: 'Siguiente',
+          skip: 'Saltar tour'
         }}
       />
 
+      {/* Hero Section */}
       <section className={styles.heroSection}>
         <h1 className={styles.homeTitle}>
           ¡Bienvenido a la Repostería "Migdalis Tortas"! 
@@ -113,13 +141,16 @@ export default function Home() {
           elaborados con los mejores ingredientes y mucho amor. <br /> 
           Cada creación es una obra de arte dulce que endulzará tus momentos especiales.
         </p>
-        <button className={styles.ctaButton} onClick={handleViewProducts}>
+        {/* Le agregamos id="tour-cta" */}
+        <button id="tour-cta" className={styles.ctaButton} onClick={handleViewProducts}>
           Ver Nuestros Productos
         </button>
       </section>
 
+      {/* Featured Products Section */}
       <section className={styles.featuredSection}>
-        <h2 className={styles.sectionTitle}>Postres Destacados</h2>
+        {/* Le agregamos id="tour-featured" */}
+        <h2 id="tour-featured" className={styles.sectionTitle}>Postres Destacados</h2>
         <div className={styles.productsGrid}>
           {featuredProducts.map(product => (
             <div key={product.id} className={styles.productCard}>
@@ -129,6 +160,7 @@ export default function Home() {
               <div className={styles.productInfo}>
                 <h3 className={styles.productName}>{product.name}</h3>
                 <p className={styles.productDescription}>{product.description}</p>
+                <p className={styles.productPrice}>{product.price}</p>
                 <button 
                   className={styles.orderButton}
                   onClick={() => handleProductInterest(product.category)}
@@ -141,6 +173,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Footer */}
       <footer className={styles.footer}>
         <div className={styles.footerContent}>
           <p className={styles.footerText}>
@@ -148,6 +181,9 @@ export default function Home() {
           </p>
           <p className={styles.copyright}>
             © {new Date().getFullYear()} Migdalis Tortas. Todos los derechos reservados.
+          </p>
+          <p className={styles.copyright}>
+            Diseñado con 💜 para los amantes de la repostería
           </p>
         </div>
       </footer>
