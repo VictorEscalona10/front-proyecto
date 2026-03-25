@@ -61,6 +61,12 @@
   margin-bottom: 8px;
 }
 
+.passwordWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
 .input {
   width: 100%;
   border: none;
@@ -86,6 +92,32 @@
   position: absolute;
   bottom: -20px;
   left: 0;
+}
+
+.togglePassword {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #8b008b;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  transition: color 0.3s ease;
+}
+
+.togglePassword:hover:not(:disabled) {
+  color: #e438e4;
+}
+
+.togglePassword:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .errorMessage {
