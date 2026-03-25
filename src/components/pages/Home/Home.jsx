@@ -2,58 +2,55 @@ import { useState, useEffect } from 'react';
 import styles from './Home.module.css';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks/AuthContext';
-import Joyride, { STATUS } from 'react-joyride'; // Importamos la librería
+
+// Importamos los componentes y estilos de intro.js
+import { Steps } from 'intro.js-react';
+import 'intro.js/introjs.css';
 
 export default function Home() {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
   
-  // Estado de React Joyride
-  const [{ run, steps }, setState] = useState({
-    run: false,
-    steps: [
-      {
-        target: 'body',
-        content: '¡Hola! 👋 Bienvenido a Migdalis Tortas. Te daremos un pequeño tour rápido para que conozcas la página.',
-        placement: 'center',
-        disableBeacon: true, // Empieza directo sin el puntito parpadeante
-      },
-      {
-        target: '#tour-cta',
-        content: 'Aquí puedes ir a ver nuestro catálogo completo de productos. ¡Tenemos de todo!',
-        placement: 'bottom',
-      },
-      {
-        target: '#tour-featured',
-        content: 'También puedes ver nuestros postres más destacados y pedirlos directamente desde aquí.',
-        placement: 'top',
-      }
-    ]
-  });
+  // Estado para saber si el tour está activo
+  const [stepsEnabled, setStepsEnabled] = useState(false);
+
+  // Configuración de los pasos del tour
+  const [steps] = useState([
+    {
+      element: '#tour-welcome',
+      intro: '¡Hola! 👋 Bienvenido a Migdalis Tortas. Te daremos un pequeño tour rápido para que conozcas la página.',
+      position: 'bottom',
+    },
+    {
+      element: '#tour-cta',
+      intro: 'Aquí puedes ir a ver nuestro catálogo completo de productos. ¡Tenemos de todo para endulzar tu día!',
+      position: 'bottom',
+    },
+    {
+      element: '#tour-featured',
+      intro: 'También puedes ver nuestros postres más destacados y pedirlos directamente desde aquí.',
+      position: 'top',
+    }
+  ]);
 
   useEffect(() => {
-    // Si el usuario está logueado, revisamos si ya vio el tutorial
+    // Si el usuario está logueado, verificamos si ya vio el tutorial
     if (isAuthenticated && user) {
       const hasSeenTutorial = localStorage.getItem(`tutorialSeen_${user.id}`);
       
       if (!hasSeenTutorial) {
-        // Si no lo ha visto, arrancamos el tour
-        setState(s => ({ ...s, run: true }));
+        // Si no lo ha visto, habilitamos el tour
+        setStepsEnabled(true);
       }
     }
   }, [isAuthenticated, user]);
 
-  // Esta función maneja cuando el usuario termina o salta el tour
-  const handleJoyrideCallback = (data) => {
-    const { status } = data;
-    const finishedStatuses = [STATUS.FINISHED, STATUS.SKIPPED];
-
-    if (finishedStatuses.includes(status)) {
-      setState({ run: false });
-      if (user) {
-        // Guardamos en el navegador que ya lo completó
-        localStorage.setItem(`tutorialSeen_${user.id}`, 'true');
-      }
+  // Función que se ejecuta cuando el usuario cierra o termina el tour
+  const onExit = () => {
+    setStepsEnabled(false);
+    if (user) {
+      // Guardamos en el navegador que ya lo vio para no volver a mostrarlo
+      localStorage.setItem(`tutorialSeen_${user.id}`, 'true');
     }
   };
 
@@ -94,42 +91,27 @@ export default function Home() {
   return (
     <div className={styles.homeContainer}>
       
-      {/* Componente principal del Tour Guiado */}
-      <Joyride
-        callback={handleJoyrideCallback}
-        continuous
-        hideCloseButton
-        run={run}
-        scrollToFirstStep
-        showProgress
-        showSkipButton
+      {/* Componente de Intro.js */}
+      <Steps
+        enabled={stepsEnabled}
         steps={steps}
-        styles={{
-          options: {
-            zIndex: 10000,
-            primaryColor: '#8b008b', // Tu color morado
-            textColor: '#510138',
-          },
-          buttonNext: {
-            backgroundColor: '#d719da',
-          },
-          buttonBack: {
-            marginRight: 10,
-            color: '#8b008b'
-          }
-        }}
-        locale={{
-          back: 'Atrás',
-          close: 'Cerrar',
-          last: '¡Entendido!',
-          next: 'Siguiente',
-          skip: 'Saltar tour'
+        initialStep={0}
+        onExit={onExit}
+        options={{
+          doneLabel: '¡Entendido!',
+          nextLabel: 'Siguiente',
+          prevLabel: 'Atrás',
+          skipLabel: 'Saltar',
+          showProgress: true,
+          showBullets: false,
+          overlayOpacity: 0.7,
         }}
       />
 
       {/* Hero Section */}
       <section className={styles.heroSection}>
-        <h1 className={styles.homeTitle}>
+        {/* ID para el primer paso del tour */}
+        <h1 id="tour-welcome" className={styles.homeTitle}>
           ¡Bienvenido a la Repostería "Migdalis Tortas"! 
           <span className={styles.cupcakeIcon}>🧁</span>
         </h1>
@@ -141,7 +123,7 @@ export default function Home() {
           elaborados con los mejores ingredientes y mucho amor. <br /> 
           Cada creación es una obra de arte dulce que endulzará tus momentos especiales.
         </p>
-        {/* Le agregamos id="tour-cta" */}
+        {/* ID para el segundo paso del tour */}
         <button id="tour-cta" className={styles.ctaButton} onClick={handleViewProducts}>
           Ver Nuestros Productos
         </button>
@@ -149,7 +131,7 @@ export default function Home() {
 
       {/* Featured Products Section */}
       <section className={styles.featuredSection}>
-        {/* Le agregamos id="tour-featured" */}
+        {/* ID para el tercer paso del tour */}
         <h2 id="tour-featured" className={styles.sectionTitle}>Postres Destacados</h2>
         <div className={styles.productsGrid}>
           {featuredProducts.map(product => (
