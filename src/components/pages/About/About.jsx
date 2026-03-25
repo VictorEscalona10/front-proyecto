@@ -144,15 +144,15 @@ export default function about() {
             <div className={styles.contactInfo}>
                 <div className={styles.contactItem}>
                 <span className={styles.contactIcon}>📞</span>
-                <span>+57 300 123 4567</span>
+                <span>+58 424-3380564</span>
                 </div>
                 <div className={styles.contactItem}>
                 <span className={styles.contactIcon}>📧</span>
-                <span>hola@migdalistortas.com</span>
+                <span>migdalistortas20@gmail.com</span>
                 </div>
                 <div className={styles.contactItem}>
                 <span className={styles.contactIcon}>📍</span>
-                <span>Calle Dulce 123, Ciudad Dulce</span>
+                <span>calle libertador sur ciudad la victoria Residencias sami</span>
                 </div>
                 <div className={styles.contactItem}>
                 <span className={styles.contactIcon}>🕒</span>
