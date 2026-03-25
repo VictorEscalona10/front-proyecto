@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import styles from "./register.module.css";
 import logo from '../../../assest/img/logo.jpg';
 
@@ -280,7 +281,7 @@ export default function Register({ onShowModal }) {
 
             <div className={styles.inputGroup}>
               <label htmlFor="password">CONTRASEÑA</label>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div className={styles.passwordWrapper}>
                 <input
                   type={showPassword ? 'text' : 'password'}
                   id="password"
@@ -291,7 +292,6 @@ export default function Register({ onShowModal }) {
                   className={`${styles.input} ${errors.password && touched.password ? styles.inputError : ""}`}
                   required
                   disabled={isLoading}
-                  style={{ flex: 1 }}
                 />
                 <button
                   type="button"
@@ -300,7 +300,7 @@ export default function Register({ onShowModal }) {
                   aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                   disabled={isLoading}
                 >
-                  {showPassword ? 'Ocultar' : 'Mostrar'}
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </button>
               </div>
               {errors.password && touched.password && (
@@ -310,7 +310,7 @@ export default function Register({ onShowModal }) {
 
             <div className={styles.inputGroup}>
               <label htmlFor="repeatPassword">REPETIR CONTRASEÑA</label>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div className={styles.passwordWrapper}>
                 <input
                   type={showRepeatPassword ? 'text' : 'password'}
                   id="repeatPassword"
@@ -321,7 +321,6 @@ export default function Register({ onShowModal }) {
                   className={`${styles.input} ${errors.repeatPassword && touched.repeatPassword ? styles.inputError : ""}`}
                   required
                   disabled={isLoading}
-                  style={{ flex: 1 }}
                 />
                 <button
                   type="button"
@@ -330,7 +329,7 @@ export default function Register({ onShowModal }) {
                   aria-label={showRepeatPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                   disabled={isLoading}
                 >
-                  {showRepeatPassword ? 'Ocultar' : 'Mostrar'}
+                  {showRepeatPassword ? <FaEyeSlash /> : <FaEye />}
                 </button>
               </div>
               {errors.repeatPassword && touched.repeatPassword && (
