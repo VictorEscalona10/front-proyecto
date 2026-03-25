@@ -268,6 +268,7 @@ url('https://images.unsplash.com/photo-1555507036-ab794f27d2e9?ixlib=rb-4.0.3&au
 :global(.introjs-button) {
   background-color: #8e44ad !important;
   border: none !important;
+  color: #ffffff;
   border-radius: 8px !important;
   padding: 8px 14px !important;
   font-weight: 500 !important;
