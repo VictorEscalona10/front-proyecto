@@ -53,7 +53,9 @@
     line-height: 1.5;
     font-size: 0.95rem;
     white-space: pre-wrap;
-    /* Para respetar los saltos de línea de la IA */
+    /* Mantiene los saltos de línea de la IA */
+    text-align: left;
+    /* AQUÍ ESTÁ LA MAGIA: Fuerza el texto a la izquierda */
 }
 
 .message-bubble.user {
