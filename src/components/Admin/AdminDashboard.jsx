@@ -11,6 +11,7 @@ import { Users } from './pages/UsersPage.jsx';
 import { PDFTester } from './pages/PDFTester.jsx';
 import StatsPage  from './pages/StatsPage.jsx';
 import { BackupPage } from './pages/BackupPage.jsx';
+import { AdminBotChat } from './pages/AdminBotChat.jsx';
 
 // NUEVO: Importar useAuth
 import { useAuth } from '../../hooks/useAuth.jsx';
@@ -97,6 +98,7 @@ export function AdminDashboard({ onShowModal }) {
                 <div className="dashboard-welcome">
                   <h2>Bienvenido al Panel de Administración</h2>
                   <p>Selecciona una opción del menú para comenzar.</p>
+                  <AdminBotChat /> {/* AQUÍ AGREGAMOS EL CHAT */}
                 </div>
               } 
             />
@@ -106,6 +108,7 @@ export function AdminDashboard({ onShowModal }) {
                 <div className="dashboard-welcome">
                   <h2>Bienvenido al Panel de Administración</h2>
                   <p>Selecciona una opción del menú para comenzar.</p>
+                  <AdminBotChat /> {/* AQUÍ AGREGAMOS EL CHAT */}
                 </div>
               } 
             />
