@@ -37,12 +37,10 @@ export default function Home() {
   ]);
 
   useEffect(() => {
-    // Si el usuario está logueado, verificamos si ya vio el tutorial
     if (isAuthenticated && user) {
       const hasSeenTutorial = localStorage.getItem(`tutorialSeen_${user.id}`);
 
       if (!hasSeenTutorial) {
-        // Le damos 800ms de retraso para que las animaciones de CSS terminen de cargar
         setTimeout(() => {
           setStepsEnabled(true);
         }, 800);
@@ -50,37 +48,37 @@ export default function Home() {
     }
   }, [isAuthenticated, user]);
 
-  // Función que se ejecuta cuando el usuario cierra o termina el tour
   const onExit = () => {
     setStepsEnabled(false);
     if (user) {
-      // Guardamos en el navegador que ya lo vio para no volver a mostrarlo
       localStorage.setItem(`tutorialSeen_${user.id}`, "true");
     }
+  };
+
+  // NUEVA FUNCIÓN: Vuelve a activar el tour manualmente
+  const handleReplayTour = () => {
+    setStepsEnabled(true);
   };
 
   const featuredProducts = [
     {
       id: 1,
       name: "Torta de Chocolate Suprema",
-      description:
-        "Deliciosa torta de chocolate con relleno de ganache y cubierta de buttercream.",
+      description: "Deliciosa torta de chocolate con relleno de ganache y cubierta de buttercream.",
       emoji: "🎂",
       category: "tortas",
     },
     {
       id: 2,
       name: "Cupcakes de Vainilla",
-      description:
-        "Esponjosos cupcakes de vainilla con decoración colorida y cremosa.",
+      description: "Esponjosos cupcakes de vainilla con decoración colorida y cremosa.",
       emoji: "🧁",
       category: "ponques",
     },
     {
       id: 3,
       name: "Galletas Personalizadas",
-      description:
-        "Galletas decoradas a mano con diseños únicos y sabores exquisitos.",
+      description: "Galletas decoradas a mano con diseños únicos y sabores exquisitos.",
       emoji: "🍪",
       category: "galletas",
     },
@@ -98,11 +96,10 @@ export default function Home() {
 
   return (
     <div className={styles.homeContainer}>
-      {/* Componente de Intro.js */}
       <Steps
         enabled={stepsEnabled}
         steps={steps}
-        initialStep={1}
+        initialStep={0} // Nota: en Intro.js los índices suelen empezar en 0, te sugiero cambiar tu '1' a '0' para que no se salte el primer paso
         onExit={onExit}
         options={{
           doneLabel: "¡Entendido!",
@@ -118,7 +115,6 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className={styles.heroSection}>
-        {/* ID para el primer paso del tour */}
         <h1 id="tour-welcome" className={styles.homeTitle}>
           ¡Bienvenido a la Repostería "Migdalis Tortas"!
           <span className={styles.cupcakeIcon}>🧁</span>
@@ -132,19 +128,31 @@ export default function Home() {
           Cada creación es una obra de arte dulce que endulzará tus momentos
           especiales.
         </p>
-        {/* ID para el segundo paso del tour */}
-        <button
-          id="tour-cta"
-          className={styles.ctaButton}
-          onClick={handleViewProducts}
-        >
-          Ver Nuestros Productos
-        </button>
+        
+        {/* Contenedor para agrupar los botones y que se vean mejor */}
+        <div className={styles.heroButtons}>
+          <button
+            id="tour-cta"
+            className={styles.ctaButton}
+            onClick={handleViewProducts}
+          >
+            Ver Nuestros Productos
+          </button>
+
+          {/* NUEVO BOTÓN: Se muestra solo si el usuario está autenticado */}
+          {isAuthenticated && (
+            <button 
+              className={styles.replayTourButton} 
+              onClick={handleReplayTour}
+            >
+              🔄 Ver Guía de la Página
+            </button>
+          )}
+        </div>
       </section>
 
       {/* Featured Products Section */}
       <section className={styles.featuredSection}>
-        {/* ID para el tercer paso del tour */}
         <h2 id="tour-featured" className={styles.sectionTitle}>
           Postres Destacados
         </h2>
@@ -157,7 +165,6 @@ export default function Home() {
                 <p className={styles.productDescription}>
                   {product.description}
                 </p>
-                <p className={styles.productPrice}>{product.price}</p>
                 <button
                   className={styles.orderButton}
                   onClick={() => handleProductInterest(product.category)}
