@@ -57,7 +57,12 @@ export default function Home() {
 
   // NUEVA FUNCIÓN: Vuelve a activar el tour manualmente
   const handleReplayTour = () => {
-    setStepsEnabled(true);
+    // Primero desactivamos para forzar un re-render limpio de intro.js
+    setStepsEnabled(false);
+    // Luego lo reactivamos en el siguiente ciclo de render
+    setTimeout(() => {
+      setStepsEnabled(true);
+    }, 100);
   };
 
   const featuredProducts = [

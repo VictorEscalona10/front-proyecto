@@ -63,6 +63,69 @@
   box-shadow: 0 6px 20px rgba(215, 25, 218, 0.4);
 }
 
+/* Hero Buttons Container */
+.heroButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+  animation: fadeInUp 1s ease 1s both;
+}
+
+/* Replay Tour Button */
+.replayTourButton {
+  position: relative;
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.15), rgba(215, 25, 218, 0.15));
+  color: #8b008b;
+  border: 2px solid rgba(147, 51, 234, 0.35);
+  padding: 14px 32px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  letter-spacing: 0.3px;
+  overflow: hidden;
+}
+
+.replayTourButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(147, 51, 234, 0.15),
+    transparent
+  );
+  transition: left 0.6s ease;
+}
+
+.replayTourButton:hover {
+  background: linear-gradient(135deg, #9333ea, #d719da);
+  color: white;
+  border-color: transparent;
+  transform: translateY(-3px);
+  box-shadow:
+    0 6px 25px rgba(147, 51, 234, 0.4),
+    0 0 40px rgba(215, 25, 218, 0.15);
+}
+
+.replayTourButton:hover::before {
+  left: 100%;
+}
+
+.replayTourButton:active {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 12px rgba(147, 51, 234, 0.3);
+}
+
 /* Featured Products Section */
 .featuredSection {
   padding: 80px 20px;
@@ -236,6 +299,16 @@
 
   .heroSection {
     padding: 80px 20px;
+  }
+
+  .heroButtons {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .replayTourButton {
+    padding: 12px 28px;
+    font-size: 0.95rem;
   }
 }
 
