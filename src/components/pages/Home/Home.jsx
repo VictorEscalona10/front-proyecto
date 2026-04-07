@@ -13,6 +13,8 @@ export default function Home() {
 
   // Estado para saber si el tour está activo
   const [stepsEnabled, setStepsEnabled] = useState(false);
+  // Key para forzar remount del componente Steps (fix: no se reiniciaba)
+  const [tourKey, setTourKey] = useState(0);
 
   // Configuración de los pasos del tour
   const [steps] = useState([
@@ -57,12 +59,12 @@ export default function Home() {
 
   // NUEVA FUNCIÓN: Vuelve a activar el tour manualmente
   const handleReplayTour = () => {
-    // Primero desactivamos para forzar un re-render limpio de intro.js
+    // Incrementar key fuerza a React a destruir y recrear el componente Steps
     setStepsEnabled(false);
-    // Luego lo reactivamos en el siguiente ciclo de render
+    setTourKey((prev) => prev + 1);
     setTimeout(() => {
       setStepsEnabled(true);
-    }, 100);
+    }, 150);
   };
 
   const featuredProducts = [
@@ -102,6 +104,7 @@ export default function Home() {
   return (
     <div className={styles.homeContainer}>
       <Steps
+        key={tourKey}
         enabled={stepsEnabled}
         steps={steps}
         initialStep={0} // Nota: en Intro.js los índices suelen empezar en 0, te sugiero cambiar tu '1' a '0' para que no se salte el primer paso
