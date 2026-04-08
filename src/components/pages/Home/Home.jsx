@@ -11,12 +11,9 @@ export default function Home() {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
 
-  // Estado para saber si el tour está activo
   const [stepsEnabled, setStepsEnabled] = useState(false);
-  // Key para forzar remount del componente Steps (fix: no se reiniciaba)
   const [tourKey, setTourKey] = useState(0);
 
-  // Configuración de los pasos del tour
   const [steps] = useState([
     {
       element: "#tour-welcome",
@@ -57,9 +54,7 @@ export default function Home() {
     }
   };
 
-  // NUEVA FUNCIÓN: Vuelve a activar el tour manualmente
   const handleReplayTour = () => {
-    // Incrementar key fuerza a React a destruir y recrear el componente Steps
     setStepsEnabled(false);
     setTourKey((prev) => prev + 1);
     setTimeout(() => {
